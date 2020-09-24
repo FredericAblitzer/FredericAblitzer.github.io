@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>Soundtools</title>
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+	<link href="https://fonts.googleapis.com/css?family=Comfortaa" rel="stylesheet">
+	<!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+	<link href="icons.css" rel="stylesheet" type="text/css">
+	<link href="normalize.css" rel="stylesheet" type="text/css">
+	<link href="app.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+
+
+
+<label id="toggle"><i class="material-icons">settings</i></label>
+
+<div id="sidebar" class="collapsed">
+<h1>Paramètres</h1>
+
+<br>
+<label for="visual">Mode de représentation</label>
+	<select id="visual" name="visual">
+		<option value="temporel">Signal temporel</option>
+		<option value="spectre">Spectre</option>
+		<option value="spectrogramme" selected>Spectrogramme</option>
+	</select>
+	<br>
+
+	<br>
+<label for="select_fmax">Fréquence maximale</label>
+<select id="select_fmax">
+	<option value="1000">1000 Hz</option>
+	<option value="2000">2000 Hz</option>
+	<option value="4000">4000 Hz</option>
+	<option value="5000" selected>5000 Hz</option>
+	<option value="8000">8000 Hz</option>
+	<option value="16000">16000 Hz</option>
+</select>
+<br>
+
+<br>
+<label for="slider_vitesse">Vitesse</label>
+<input type="range" min="1" max="2" value="1" class="slider" id="slider_vitesse">
+<br>
+
+
+<br>
+<label for="select_Nfft">Nfft</label>
+<select id="select_Nfft">
+	<option value="512">512</option>
+	<option value="1024">1024</option>
+	<option value="2048">2048</option>
+	<option value="4096" selected>4096</option>
+	<option value="8192">8192</option>
+	<option value="16384">16384</option>
+	<option value="32768">32768</option>
+</select>
+<br>
+
+<br>
+<label for="select_voie">Voie</label>
+<select id="select_voie">
+	<option value="left" selected>gauche</option>
+	<option value="right">droite</option>
+</select>
+<br>
+
+<br>
+<label for="select_curseur">Curseur</label>
+<select id="select_curseur">
+	<option value="0" selected>simple</option>
+	<option value="1">harmonique</option>
+	<option value="2">aucun</option>
+</select>
+<br>
+
+<br>
+<label for="select_curseur_1">Curseur</label>
+<select id="select_curseur_1">
+	<option value="none">aucun</option>	
+	<option value="single" selected>simple</option>
+	<option value="harmonic">harmonique</option>
+	<option value="beam_FF">poutre libre-libre</option>
+	<option value="beam_CF">poutre encastrée-libre</option>
+</select>
+<br>
+
+
+
+
+<br>
+seuil (dB)<button id="bouton_mindBminus">-</button>
+<b id="mindB">mindB</b>
+<button id="bouton_mindBplus">+</button>
+<br>
+
+<br>
+dynamique (dB)<button id="bouton_dynminus">-</button>
+<b id="dyn">dyn</b>
+<button id="bouton_dynplus">+</button>
+<br>
+
+<br>
+<label for="select_gain">Gain</label>
+<select id="select_gain">
+	<option value="1" selected>x 1</option>
+	<option value="2">x 2</option>
+	<option value="5">x 5</option>
+	<option value="10">x 10</option>
+	<option value="20">x 20</option>
+	<option value="50">x 50</option>
+	<option value="100">x 100</option>
+</select>
+<br>
+
+</div>
+
+	<canvas id="visualizer"></canvas>
+
+
+
+	<br>
+
+	<video style="display:none;" height="320px" id="v" controls></video>
+
+
+
+
+	<!-- <canvas class="copie" width="800" height="200"></canvas>
+    <br>-->
+	<div align="right">
+	<input type="image" id="bouton_pause" width="80" height="80" src="icon_pause.png">
+	<img  width="80" height="80" src="spacer.png">
+	<input type="image" id="bouton_time_freq" width="80" height="80" src="icon_time_freq.png">
+	<img  width="20" height="80" src="spacer.png">
+	<input type="image" id="bouton_freq" width="80" height="80" src="icon_freq.png">
+	<img  width="80" height="80" src="spacer.png">
+	<input type="image" id="bouton_tap" width="80" height="80" src="icon_tap.png">
+	<img  width="20" height="80" src="spacer.png">
+	<input type="image" id="bouton_wav" width="80" height="80" src="icon_wav.png">
+	<input type="file" id="toto" accept="audio/*,video/*" style="display:none" onchange="handleFiles(this.files)">
+	<a id="lien_screenshot"><button id="bouton_screenshot"><i class="material-icons" id="i_photo_camera">photo_camera</i></button></a>
+	</div>
+
+
+
+
+	<!--<img id="logo" src="logo_laum.png" height="50px" title="Soundtools | &#9400; 2019 LAUM - Le Mans Université">-- />
+
+	<!-- The following element pulls in the script for the default template functionality
+    <script src="install.js"></script>
+    -->
+
+	<script src="fft.js"></script>
+	<script src="app.js"></script>
+
+</body>
+
+</html>
