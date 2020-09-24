@@ -1,15 +1,15 @@
 /* || General layout rules for narrow screens */
 @font-face {
   font-family: "guitar-bold";
-  src: url("fonts/guitar-bold.woff2") format("woff2"),
-	url("fonts/guitar-bold.woff") format("woff");
+  src: url("https://fredericablitzer.github.io/fonts/guitar-bold.woff2") format("woff2"),
+	url("https://fredericablitzer.github.io/fonts/guitar-bold.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
   font-family: "guitar-light";
-	src: url("fonts/guitar-light.woff2") format("woff2"),
-	url("fonts/guitar-light.woff") format("woff");
+	src: url("https://fredericablitzer.github.io/fonts/guitar-light.woff2") format("woff2"),
+	url("https://fredericablitzer.github.io/fonts/guitar-light.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
