@@ -214,6 +214,10 @@ if (navigator.mediaDevices.getUserMedia === undefined) {
 
 var contexteAudio = new(window.AudioContext || window.webkitAudioContext)();
 console.log(contexteAudio.sampleRate); // fréquence d'échantillonnage pour vérif
+
+Fe = contexteAudio.sampleRate;
+console.log('test')
+
 var splitter = contexteAudio.createChannelSplitter(2);
 var voiceSelect = document.getElementById("voice");
 var source;
