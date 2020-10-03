@@ -4,9 +4,9 @@
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: url("https://fredericablitzer.github.io/fonts/MaterialIcons-Regular.woff2") format('woff2'),
-    url("https://fredericablitzer.github.io/fonts/MaterialIcons-Regular.woff") format('woff'),
-    url("https://fredericablitzer.github.io/fonts/MaterialIcons-Regular.ttf") format('truetype');
+  src: url("https://fredericablitzer.github.io/soundtools/fonts/MaterialIcons-Regular.woff2") format('woff2'),
+    url("https://fredericablitzer.github.io/soundtools/fonts/MaterialIcons-Regular.woff") format('woff'),
+    url("https://fredericablitzer.github.io/soundtools/fonts/MaterialIcons-Regular.ttf") format('truetype');
 }
 
 .material-icons {
