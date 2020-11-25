@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width">
+  <title>Sound synthesis using WebAudioAPI</title>
+  <link rel="stylesheet" href="">
+
+  <style>
+    canvas {
+      border: 1px solid black;
+      background: white;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>Sound synthesis using WebAudioAPI</h1>
+
+  <canvas id="myCanvas" width="600" height="600"></canvas>
+  <br>
+  <input type="button" value="Play" id="buttonPlay">
+  <input type="button" value="Stop" id="buttonStop">
+
+
+
+  <script>
+    const buttonPlay = document.getElementById('buttonPlay');
+    const buttonStop = document.getElementById('buttonStop');
+
+    let audioCtx;
+    let scriptNode;
+
+    let fs
+    let t
+    let canvasX
+    let canvasY
+    let Nbuffer = 2048;
+
+    t = 0;
+    init();
+
+    function init() {
+      audioCtx = new AudioContext();
+
+      fs = audioCtx.sampleRate;
+      dt = 1 / fs;
+
+      scriptNode = audioCtx.createScriptProcessor(Nbuffer, 1, 1); //(bufferSize, numberOfInputChannels, numberOfOutputChannels);
+
+      // audioProcessingEvent ----------------------------------------------------------------------------------------
+      scriptNode.onaudioprocess = function(audioProcessingEvent) {
+
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
+        ctx.fillText("t: " + t + ", X: " + canvasX + ", Y: " + canvasY, 10, 20);
+
+        let t1 = Date.now();
+
+        let outputBuffer = audioProcessingEvent.outputBuffer;
+        // si 2 voies imbriquer la boucle ci-dessous dans une autre
+        // for (let channel = 0; channel < outputBuffer.numberOfChannels; channel++) {
+        //   let outputData = outputBuffer.getChannelData(channel);
+        // }
+
+        let outputData = outputBuffer.getChannelData(0);
+        for (let i = 0; i < outputBuffer.length; i++) {
+          t = t + dt
+          outputData[i] = 0.5 * canvasY / 150 * Math.sin(2 * Math.PI * 440 * (t));
+        }
+
+        let t2 = Date.now();
+        console.log('duree = ' + (t2 - t1) + ' ms | t_buffer = ' + (Nbuffer * dt) * 1000 + ' ms')
+
+      }
+      // ------------------------------------------------------------------------------------------------------
+
+
+    }
+
+
+
+
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    ctx.font = "16px Arial";
+
+    canvas.addEventListener("mousemove", function(e) {
+      var cRect = canvas.getBoundingClientRect(); // Gets the CSS positions along with width/height
+      canvasX = Math.round(e.clientX - cRect.left); // Subtract the 'left' of the canvas from the X/Y
+      canvasY = Math.round(e.clientY - cRect.top); // positions to get make (0,0) the top left of the
+      // ctx.clearRect(0, 0, canvas.width, canvas.height);        // canvas
+      // ctx.fillText("t: "+t+", X: "+canvasX+", Y: "+canvasY, 10, 20);
+    });
+
+    canvas.addEventListener("mouseover", function(e) {
+      scriptNode.connect(audioCtx.destination);
+      console.log('mouse over')
+    });
+
+    canvas.addEventListener("mouseleave", function(e) {
+      scriptNode.disconnect(audioCtx.destination);
+      console.log('mouse out')
+    });
+
+
+
+    buttonPlay.onclick = function() {
+      scriptNode.connect(audioCtx.destination);
+    }
+    buttonStop.onclick = function() {
+      scriptNode.disconnect(audioCtx.destination);
+    }
+
+
+
+
+  </script>
+</body>
+
+</html>
