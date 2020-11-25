@@ -88,7 +88,7 @@
     var ctx = canvas.getContext("2d");
     ctx.font = "16px Arial";
 
-    canvas.addEventListener("mousemove", function(e) {
+    canvas.addEventListener("touchmove", function(e) {
       var cRect = canvas.getBoundingClientRect(); // Gets the CSS positions along with width/height
       canvasX = Math.round(e.clientX - cRect.left); // Subtract the 'left' of the canvas from the X/Y
       canvasY = Math.round(e.clientY - cRect.top); // positions to get make (0,0) the top left of the
@@ -96,12 +96,12 @@
       // ctx.fillText("t: "+t+", X: "+canvasX+", Y: "+canvasY, 10, 20);
     });
 
-    canvas.addEventListener("mouseover", function(e) {
+    canvas.addEventListener("touchstart", function(e) {
       scriptNode.connect(audioCtx.destination);
       console.log('mouse over')
     });
 
-    canvas.addEventListener("mouseleave", function(e) {
+    canvas.addEventListener("touchend", function(e) {
       scriptNode.disconnect(audioCtx.destination);
       console.log('mouse out')
     });
