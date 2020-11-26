@@ -95,7 +95,9 @@
 
         let v
         let f
+        let beta
         f = 0
+        beta = canvasX/canvas.width
         if (canvasY > 300) {
           f = 1
         }
@@ -106,8 +108,8 @@
 
           v = 0;
           for (let n = 0; n < N; n++) {
-            let q_n_temp = A_11[n] * q_n[n] + A_12[n] * qdot_n[n] + A_13[n] * Math.sin((n + 1) * Math.PI * 0.2) * f;
-            let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * 0.2) * f;
+            let q_n_temp = A_11[n] * q_n[n] + A_12[n] * qdot_n[n] + A_13[n] * Math.sin((n + 1) * Math.PI * beta) * f;
+            let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * beta) * f;
             q_n[n] = q_n_temp
             qdot_n[n] = qdot_n_temp
             v = v + qdot_n[n] * Math.sin(n * Math.PI * 0.2)
@@ -123,15 +125,17 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
         ctx.fillText("t: " + t + ", X: " + canvasX + ", Y: " + canvasY, 10, 20);
 
-
-        for (let n = 1; n < N; n++) {
-          ctx.beginPath();
-          ctx.moveTo(0, canvas.height / 2);
-          for (let x = 0; x < canvas.width + 1; x++) {
-            ctx.lineTo(x, canvas.height / 2 + 30 * Math.sin(n * Math.PI * x / canvas.width) * Math.cos(n * 2 * Math.PI * 1 * t));
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+        for (let x = 0; x < canvas.width + 1; x++) {
+          let w = 0
+          for (let n = 0; n < N; n++) {
+           w = w + q_n[n]*Math.sin((n+1)*Math.PI*x/canvas.width)
+          }
+          w = 100000000*w
+          ctx.lineTo(x, canvas.height / 2 + w);
           }
           ctx.stroke()
-        }
 
         ctx.beginPath();
         ctx.arc(canvasX, canvasY, 20, 0, 2 * Math.PI);
