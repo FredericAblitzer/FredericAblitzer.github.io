@@ -51,6 +51,8 @@
 
       fs = audioCtx.sampleRate;
       t = 0;
+      let f1 = 0;
+      let beta1 = 0;
       dt = 1 / fs;
 
 
@@ -93,25 +95,34 @@
         //   let outputData = outputBuffer.getChannelData(channel);
         // }
 
+        let f0 = f1
+        let beta0 = beta1
 
-        let v
-        let f
-        let beta
-        f = 0
-        beta = canvasX/canvas.width
-
-        f = 0.01*(canvasY-canvas.height/2)
-        f = f*clic
-
+        beta1 = canvasX/canvas.width
+        f1 = 0.01*(canvasY-canvas.height/2)
 
         let outputData = outputBuffer.getChannelData(0);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
+
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+
         for (let i = 0; i < outputBuffer.length; i++) {
+          let v
+          let f
+          let beta
+
           t = t + dt
+
+          f = f0 + (f1-f0)*i/Nbuffer
+          beta = beta0 + (beta1-beta0)*i/Nbuffer
 
           v = 0;
           for (let n = 0; n < N; n++) {
-            let q_n_temp = A_11[n] * q_n[n] + A_12[n] * qdot_n[n] + A_13[n] * Math.sin((n + 1) * Math.PI * beta) * f;
-            let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * beta) * f;
+            let q_n_temp = A_11[n] * q_n[n] + A_12[n] * qdot_n[n] + A_13[n] * Math.sin((n + 1) * Math.PI * beta) * f*clic;
+            let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * beta) * f*clic;
             q_n[n] = q_n_temp
             qdot_n[n] = qdot_n_temp
             v = v + qdot_n[n] * Math.sin(n * Math.PI * 0.1)
@@ -120,15 +131,18 @@
 
           outputData[i] = v
           // outputData[i] = 0.5 * canvasY / 150 * Math.sin(2 * Math.PI * 440 * (t));
+
+          ctx.lineTo(i/Nbuffer*canvas.width, canvas.height / 2 + v*(canvas.height / 2));
         }
 
+        ctx.stroke()
 
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
         ctx.fillText("X: " + canvasX + ", Y: " + canvasY, 10, 20);
         ctx.fillText("t: " + t + " s", 10, 40);
-        ctx.fillText("f: " + f + " N", 10, 60);
+        ctx.fillText("f: " + f1 + " N", 10, 60);
 
+        ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(0, canvas.height / 2);
         for (let x = 0; x < canvas.width + 1; x++) {
@@ -141,9 +155,9 @@
           }
           ctx.stroke()
 
-        ctx.beginPath();
-        ctx.arc(canvasX, canvasY, 20, 0, 2 * Math.PI);
-        ctx.stroke();
+        // ctx.beginPath();
+        // ctx.arc(canvasX, canvasY, 20, 0, 2 * Math.PI);
+        // ctx.stroke();
 
 
 
@@ -170,8 +184,6 @@
       var cRect = canvas.getBoundingClientRect(); // Gets the CSS positions along with width/height
       canvasX = Math.round(e.clientX - cRect.left); // Subtract the 'left' of the canvas from the X/Y
       canvasY = Math.round(e.clientY - cRect.top); // positions to get make (0,0) the top left of the
-      // ctx.clearRect(0, 0, canvas.width, canvas.height);        // canvas
-      // ctx.fillText("t: "+t+", X: "+canvasX+", Y: "+canvasY, 10, 20);
     });
 
     canvas.addEventListener("mouseover", function(e) {
