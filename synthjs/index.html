@@ -36,28 +36,54 @@
 
     let fs
     let t
+    let dt
     let canvasX
     let canvasY
     let Nbuffer = 2048;
+    let N = 30;
 
-    t = 0;
+
     init();
 
     function init() {
       audioCtx = new AudioContext();
 
       fs = audioCtx.sampleRate;
+      t = 0;
       dt = 1 / fs;
+
+
+      let A_11 = new Float32Array(N)
+      let A_12 = new Float32Array(N)
+      let A_13 = new Float32Array(N)
+      let A_21 = new Float32Array(N)
+      let A_22 = new Float32Array(N)
+      let A_23 = new Float32Array(N)
+
+      for (let n = 0; n < N; n++) {
+        let omega_n = (n + 1) * 2 * Math.PI * 220
+        let xi_n = 0.001
+        let omegaD_n = omega_n * Math.sqrt(1 - Math.pow(xi_n, 2))
+        let m_n = 1 // a revoir !
+
+        A_11[n] = Math.exp(-xi_n * omega_n * dt) * (Math.cos(omegaD_n * dt) + xi_n * omega_n / omegaD_n * Math.sin(omegaD_n * dt));
+        A_12[n] = Math.exp(-xi_n * omega_n * dt) * 1 / omegaD_n * Math.sin(omegaD_n * dt);
+        A_13[n] = 1 / (m_n * Math.pow(omega_n, 2)) - Math.exp(-xi_n * omega_n * dt) * (Math.cos(omegaD_n * dt) / (m_n * Math.pow(omega_n, 2)) + xi_n / (omegaD_n * m_n * omega_n) * Math.sin(omegaD_n * dt));
+
+        A_21[n] = -Math.exp(-xi_n * omega_n * dt) * Math.pow(omega_n, 2) / omegaD_n * Math.sin(omegaD_n * dt);
+        A_22[n] = Math.exp(-xi_n * omega_n * dt) * (Math.cos(omegaD_n * dt) - xi_n * omega_n / omegaD_n * Math.sin(omegaD_n * dt));
+        A_23[n] = 1 / (m_n * omegaD_n) * Math.exp(-xi_n * omega_n * dt) * Math.sin(omegaD_n * dt);
+      }
+
+
+      let q_n = new Float32Array(N)
+      let qdot_n = new Float32Array(N)
+
 
       scriptNode = audioCtx.createScriptProcessor(Nbuffer, 1, 1); //(bufferSize, numberOfInputChannels, numberOfOutputChannels);
 
       // audioProcessingEvent ----------------------------------------------------------------------------------------
       scriptNode.onaudioprocess = function(audioProcessingEvent) {
-
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
-        ctx.fillText("t: " + t + ", X: " + canvasX + ", Y: " + canvasY, 10, 20);
-
         let t1 = Date.now();
 
         let outputBuffer = audioProcessingEvent.outputBuffer;
@@ -66,11 +92,55 @@
         //   let outputData = outputBuffer.getChannelData(channel);
         // }
 
+
+        let v
+        let f
+        f = 0
+        if (canvasY > 300) {
+          f = 1
+        }
+
         let outputData = outputBuffer.getChannelData(0);
         for (let i = 0; i < outputBuffer.length; i++) {
           t = t + dt
-          outputData[i] = 0.5 * canvasY / 150 * Math.sin(2 * Math.PI * 440 * (t));
+
+          v = 0;
+          for (let n = 0; n < N; n++) {
+            let q_n_temp = A_11[n] * q_n[n] + A_12[n] * qdot_n[n] + A_13[n] * Math.sin((n + 1) * Math.PI * 0.2) * f;
+            let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * 0.2) * f;
+            q_n[n] = q_n_temp
+            qdot_n[n] = qdot_n_temp
+            v = v + qdot_n[n] * Math.sin(n * Math.PI * 0.2)
+          }
+          v = v * 1000
+
+          outputData[i] = v
+          // outputData[i] = 0.5 * canvasY / 150 * Math.sin(2 * Math.PI * 440 * (t));
         }
+
+
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
+        ctx.fillText("t: " + t + ", X: " + canvasX + ", Y: " + canvasY, 10, 20);
+
+
+        for (let n = 1; n < N; n++) {
+          ctx.beginPath();
+          ctx.moveTo(0, canvas.height / 2);
+          for (let x = 0; x < canvas.width + 1; x++) {
+            ctx.lineTo(x, canvas.height / 2 + 30 * Math.sin(n * Math.PI * x / canvas.width) * Math.cos(n * 2 * Math.PI * 1 * t));
+          }
+          ctx.stroke()
+        }
+
+        ctx.beginPath();
+        ctx.arc(canvasX, canvasY, 20, 0, 2 * Math.PI);
+        ctx.stroke();
+
+
+
+
+
 
         let t2 = Date.now();
         console.log('duree = ' + (t2 - t1) + ' ms | t_buffer = ' + (Nbuffer * dt) * 1000 + ' ms')
@@ -88,7 +158,7 @@
     var ctx = canvas.getContext("2d");
     ctx.font = "16px Arial";
 
-    canvas.addEventListener("touchmove", function(e) {
+    canvas.addEventListener("mousemove", function(e) {
       var cRect = canvas.getBoundingClientRect(); // Gets the CSS positions along with width/height
       canvasX = Math.round(e.clientX - cRect.left); // Subtract the 'left' of the canvas from the X/Y
       canvasY = Math.round(e.clientY - cRect.top); // positions to get make (0,0) the top left of the
@@ -96,12 +166,12 @@
       // ctx.fillText("t: "+t+", X: "+canvasX+", Y: "+canvasY, 10, 20);
     });
 
-    canvas.addEventListener("touchstart", function(e) {
+    canvas.addEventListener("mouseover", function(e) {
       scriptNode.connect(audioCtx.destination);
       console.log('mouse over')
     });
 
-    canvas.addEventListener("touchend", function(e) {
+    canvas.addEventListener("mouseleave", function(e) {
       scriptNode.disconnect(audioCtx.destination);
       console.log('mouse out')
     });
@@ -114,10 +184,6 @@
     buttonStop.onclick = function() {
       scriptNode.disconnect(audioCtx.destination);
     }
-
-
-
-
   </script>
 </body>
 
