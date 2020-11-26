@@ -121,11 +121,11 @@
 
           v = 0;
           for (let n = 0; n < N; n++) {
-            let q_n_temp = A_11[n] * q_n[n] + A_12[n] * qdot_n[n] + A_13[n] * Math.sin((n + 1) * Math.PI * beta) * f*clic;
-            let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * beta) * f*clic;
+            let q_n_temp = A_11[n]*q_n[n] + A_12[n]*qdot_n[n] + A_13[n]*Math.sin((n+1)*Math.PI*beta)*f*clic;
+            let qdot_n_temp = A_21[n]*q_n[n] + A_22[n]*qdot_n[n] + A_23[n]*Math.sin((n+1)*Math.PI*beta)*f*clic;
             q_n[n] = q_n_temp
             qdot_n[n] = qdot_n_temp
-            v = v + qdot_n[n] * Math.sin(n * Math.PI * 0.1)
+            v = v + qdot_n[n] * Math.sin((n+1)*Math.PI*0.1)
           }
           v = v * 1000
 
