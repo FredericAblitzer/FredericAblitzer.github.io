@@ -99,7 +99,7 @@
         let beta0 = beta1
 
         beta1 = canvasX/canvas.width
-        f1 = 0.01*(canvasY-canvas.height/2)
+        f1 = -0.01*(canvasY-canvas.height/2)
 
         let outputData = outputBuffer.getChannelData(0);
 
@@ -151,7 +151,7 @@
            w = w + q_n[n]*Math.sin((n+1)*Math.PI*x/canvas.width)
           }
           w = 100000000*w
-          ctx.lineTo(x, canvas.height / 2 + w);
+          ctx.lineTo(x, canvas.height / 2 - w);
           }
           ctx.stroke()
 
