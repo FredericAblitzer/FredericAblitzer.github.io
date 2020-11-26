@@ -39,8 +39,9 @@
     let dt
     let canvasX
     let canvasY
-    let Nbuffer = 2048;
-    let N = 30;
+    let Nbuffer = 1024;
+    let N = 50;
+    let clic = 0;
 
 
     init();
@@ -98,9 +99,10 @@
         let beta
         f = 0
         beta = canvasX/canvas.width
-        if (canvasY > 300) {
-          f = 1
-        }
+
+        f = 0.01*(canvasY-canvas.height/2)
+        f = f*clic
+
 
         let outputData = outputBuffer.getChannelData(0);
         for (let i = 0; i < outputBuffer.length; i++) {
@@ -112,7 +114,7 @@
             let qdot_n_temp = A_21[n] * q_n[n] + A_22[n] * qdot_n[n] + A_23[n] * Math.sin((n + 1) * Math.PI * beta) * f;
             q_n[n] = q_n_temp
             qdot_n[n] = qdot_n_temp
-            v = v + qdot_n[n] * Math.sin(n * Math.PI * 0.2)
+            v = v + qdot_n[n] * Math.sin(n * Math.PI * 0.1)
           }
           v = v * 1000
 
@@ -123,7 +125,9 @@
 
 
         ctx.clearRect(0, 0, canvas.width, canvas.height); // canvas
-        ctx.fillText("t: " + t + ", X: " + canvasX + ", Y: " + canvasY, 10, 20);
+        ctx.fillText("X: " + canvasX + ", Y: " + canvasY, 10, 20);
+        ctx.fillText("t: " + t + " s", 10, 40);
+        ctx.fillText("f: " + f + " N", 10, 60);
 
         ctx.beginPath();
         ctx.moveTo(0, canvas.height / 2);
@@ -179,6 +183,17 @@
       scriptNode.disconnect(audioCtx.destination);
       console.log('mouse out')
     });
+
+    canvas.addEventListener("mousedown", function(e) {
+      clic = 1;
+      console.log('clic = 1')
+    });
+
+    canvas.addEventListener("mouseup", function(e) {
+      clic = 0;
+      console.log('clic = 0')
+    });
+
 
 
 
