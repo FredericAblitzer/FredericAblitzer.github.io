@@ -56,6 +56,11 @@
       dt = 1 / fs;
 
 
+      // PARAMETERS OF THE STRING
+      let L = 0.33 // length
+      let T = 39.15 // tension
+      let mu = 2.34E-3 // mass per unit length
+
       let A_11 = new Float32Array(N)
       let A_12 = new Float32Array(N)
       let A_13 = new Float32Array(N)
@@ -64,10 +69,10 @@
       let A_23 = new Float32Array(N)
 
       for (let n = 0; n < N; n++) {
-        let omega_n = (n + 1) * 2 * Math.PI * 220
+        let omega_n = (n+1)*Math.PI/L*Math.sqrt(T/mu)
         let xi_n = 0.001
-        let omegaD_n = omega_n * Math.sqrt(1 - Math.pow(xi_n, 2))
-        let m_n = 1 // a revoir !
+        let omegaD_n = omega_n*Math.sqrt(1-Math.pow(xi_n,2))
+        let m_n = L*mu/2
 
         A_11[n] = Math.exp(-xi_n * omega_n * dt) * (Math.cos(omegaD_n * dt) + xi_n * omega_n / omegaD_n * Math.sin(omegaD_n * dt));
         A_12[n] = Math.exp(-xi_n * omega_n * dt) * 1 / omegaD_n * Math.sin(omegaD_n * dt);
@@ -95,11 +100,12 @@
         //   let outputData = outputBuffer.getChannelData(channel);
         // }
 
+        let w
         let f0 = f1
         let beta0 = beta1
 
         beta1 = canvasX/canvas.width
-        f1 = -0.01*(canvasY-canvas.height/2)
+        f1 = -2*(canvasY-canvas.height/2)/(canvas.height/2)
 
         let outputData = outputBuffer.getChannelData(0);
 
@@ -110,6 +116,7 @@
         ctx.moveTo(0, canvas.height / 2);
 
         for (let i = 0; i < outputBuffer.length; i++) {
+
           let v
           let f
           let beta
@@ -127,7 +134,7 @@
             qdot_n[n] = qdot_n_temp
             v = v + qdot_n[n] * Math.sin((n+1)*Math.PI*0.1)
           }
-          v = v * 1000
+          v = v * 0.2
 
           outputData[i] = v
           // outputData[i] = 0.5 * canvasY / 150 * Math.sin(2 * Math.PI * 440 * (t));
@@ -150,7 +157,7 @@
           for (let n = 0; n < N; n++) {
            w = w + q_n[n]*Math.sin((n+1)*Math.PI*x/canvas.width)
           }
-          w = 100000000*w
+          w = w*20000
           ctx.lineTo(x, canvas.height / 2 - w);
           }
           ctx.stroke()
