@@ -1,7 +1,7 @@
 var document;
 
 document.onkeydown = checkKey;
-
+document.onkeyup = checkKeyUp;
 
 //webkitURL is deprecated but nevertheless
 URL = window.URL || window.webkitURL;
@@ -1047,6 +1047,23 @@ function checkKey(e) {
 }
 
 
+function checkKeyUp(e) {
+
+	//e = e || window.event;
+
+	if (e.keyCode == '38' || e.keyCode == '40' || e.keyCode == '37' || e.keyCode == '39') {
+	gainnode.connect(contexteAudio.destination);
+	gainnode.gain.linearRampToValueAtTime(0, contexteAudio.currentTime+0);
+	gainnode.gain.linearRampToValueAtTime(0.05, contexteAudio.currentTime+0.1);
+	gainnode.gain.linearRampToValueAtTime(0, contexteAudio.currentTime+1);
+	}
+
+
+}
+
+
+
+
 //----------------------------------------------------------------------
 // EVENEMENTS SOURIS
 //----------------------------------------------------------------------
@@ -1059,9 +1076,10 @@ function onMouseUp(e) {
 	if (son == 1) {
 				//osc.disconnect();
     //osc.connect(gainnode);
-    gainnode.connect(contexteAudio.destination);
-    gainnode.gain.linearRampToValueAtTime(0.05, contexteAudio.currentTime);
-    gainnode.gain.linearRampToValueAtTime(0, contexteAudio.currentTime+1);
+	gainnode.connect(contexteAudio.destination);
+	gainnode.gain.linearRampToValueAtTime(0, contexteAudio.currentTime+0);
+	gainnode.gain.linearRampToValueAtTime(0.05, contexteAudio.currentTime+0.1);
+	gainnode.gain.linearRampToValueAtTime(0, contexteAudio.currentTime+1);
 		son = 0;
 	}
 
@@ -1071,8 +1089,7 @@ function onMouseUp(e) {
 
 function onMouseDown(e) {
 	console.log('hello dolly!')
-	gainnode.gain.value = 0;
-
+	gainnode.disconnect()
 	// s'il n'y a pas de son, on le déclenche
 	if (son == 0 && visualSelect.value!='temporel') {
 		 //osc.disconnect();
