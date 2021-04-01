@@ -1282,8 +1282,15 @@ function updateNote() {
 			for (var i = 6; i <= 10; i++) {
 				list_f.push((2 * i + 1) * Math.PI / 2);
 			}
+		list_f.forEach(function(val, i) {
+        list_f[i] = Math.pow(val/1.8751,2);
+      });
+
+			break;
+		case "beam_CF":
+			list_f = [1.8751, 4.6941, 7.8548, 10.9955];
       list_f.forEach(function(val, i) {
-        list_f[i] = Math.pow(val/4.73004074,2);
+        list_f[i] = Math.pow(val/1.8751,2);
       });
 
 			break;
