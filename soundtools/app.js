@@ -1179,10 +1179,10 @@ function change_visu(e) {
   console.log('change visu')
   switch (e.target.id) {
     case 'bouton_freq':
-      mindB = -120
-      dyn = 120
-      select_Nfft.value = 16384;
-      select_fmax.value = 2000;
+      // mindB = -120
+      // dyn = 120
+      // select_Nfft.value = 16384;
+      // select_fmax.value = 2000;
       visualSelect.value = "spectre";
     break;
     case 'bouton_time_freq':
