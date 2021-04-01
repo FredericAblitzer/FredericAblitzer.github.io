@@ -8,7 +8,6 @@ URL = window.URL || window.webkitURL;
 
 var select_fmax = document.getElementById("select_fmax");
 var slider_vitesse = document.getElementById("slider_vitesse");
-var select_curseur = document.getElementById("select_curseur");
 var select_curseur_1 = document.getElementById("select_curseur_1");
 var select_Nfft = document.getElementById("select_Nfft");
 var select_gain = document.getElementById("select_gain");
@@ -52,7 +51,6 @@ var dx_spectre;
 var px_par_s; // nombre de pixels par seconde
 var fcurseur = 440; // frequence du curseur
 var Nfreqmax;
-var curseur_harmonique; // booléen (0 / 1)
 var trig_level = 0.8;
 var son = 0;
 var waitingfortrigger = false;
@@ -551,23 +549,7 @@ function visualize() {
 
       }
 
-			// if (curseur_harmonique == 1) {
-			// 	var n = 2;
-      //
-			// 	while (n * (HEIGHT - ycurseur) < HEIGHT2) {
-			// 		ctx.beginPath();
-			// 		ctx.moveTo(0, HEIGHT - n * (HEIGHT - ycurseur));
-			// 		ctx.lineTo(WIDTH, HEIGHT - n * (HEIGHT - ycurseur));
-			// 		ctx.strokeStyle = "red";
-			// 		ctx.lineWidth = 1;
-			// 		ctx.stroke();
-      //
-			// 		n++;
-			// 	}
-			// }
-
-
-
+			
       var fps_count = Math.round(1000/(now-toc)*10)/10;
       toc = now;
 
@@ -850,23 +832,12 @@ function visualize() {
 			ctx.fillStyle = couleurcurseur;
 			ctx.fillText(''+fcurseur + " Hz (" + notecurseur + ")", xcurseur, 50);
 
+// Curseurs multiples
+      for (let i = 0; i < list_f.length; i++) {
+        xcurseur1 = list_f[i]*fcurseur / fmax * WIDTH;
+        ctx.fillRect(xcurseur1, 0, 1, HEIGHT-50);
+      }
 
-
-			if (curseur_harmonique == 1) {
-				var n = 2;
-
-				while (n * xcurseur < WIDTH) {
-
-					ctx.beginPath();
-					ctx.moveTo(n * xcurseur, HEIGHT);
-					ctx.lineTo(n * xcurseur, 0);
-					ctx.strokeStyle = "red";
-					ctx.lineWidth = 1;
-					ctx.stroke();
-
-					n++;
-				}
-			}
 
       }
 
@@ -913,10 +884,7 @@ select_curseur_1.onchange = function() {
   updateNote();
 };
 
-select_curseur.onchange = function() {
-	//init();
-  curseur_harmonique = select_curseur.value;
-};
+
 
 select_Nfft.onchange = function() {
 	window.cancelAnimationFrame(drawVisual);
@@ -1319,7 +1287,7 @@ function init() {
 	analyser.minDecibels = mindB;
 	analyser.maxDecibels = maxdB;
 
-	curseur_harmonique = select_curseur.value;
+	
 
   voie = select_voie.value;
 
