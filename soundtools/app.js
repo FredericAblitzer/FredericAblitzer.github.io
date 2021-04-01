@@ -43,7 +43,7 @@ let dyn = 60
 var Nfft = 8192; // (185.8 ms)
 var Nfreq; // nombre de fréquences récupérées avec getByteFrequencyData
 var Fe = 44100; // fréquence d'échantillonnage (réellement imposée)
-var notes = ['la', 'la#', 'si', 'do', 'do#', 'ré', 'ré#', 'mi', 'fa', 'fa#', 'sol', 'sol#', 'la', 'la#', 'si', 'do', 'do#', 'ré', 'ré#', 'mi', 'fa', 'fa#', 'sol', 'sol#', 'la'];
+var notes = ['la', 'la#/si\u266d', 'si', 'do', 'do#/ré\u266d', 'ré', 'ré#/mi\u266d', 'mi', 'fa', 'fa#/sol\u266d', 'sol', 'sol#/la\u266d', 'la', 'la#/si\u266d', 'si', 'do', 'do#/ré\u266d', 'ré', 'ré#/mi\u266d', 'mi', 'fa', 'fa#/sol\u266d', 'sol', 'sol#/la\u266d', 'la'];
 var ImagesNotes = ["note_A3.svg", "note_A3sharp.svg", "note_B3.svg", "note_C4.svg", "note_C4sharp.svg", "note_D4.svg", "note_D4sharp.svg", "note_E4.svg", "note_F4.svg", "note_F4sharp.svg", "note_G4.svg", "note_G4sharp.svg", "note_A4.svg", "note_A4sharp.svg", "note_B4.svg", "note_C5.svg", "note_C5sharp.svg", "note_D5.svg", "note_D5sharp.svg", "note_E5.svg", "note_F5.svg", "note_F5sharp.svg", "note_G5.svg", "note_G5sharp.svg", "note_A5.svg"];
 
 // Variables paramétrables
