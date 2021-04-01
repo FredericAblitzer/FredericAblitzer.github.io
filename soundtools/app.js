@@ -1293,7 +1293,6 @@ function updateNote() {
 				list_f.push((2 * i - 1) * Math.PI / 2);
 			}
 		list_f.forEach(function(val, i) {
-      list_f.forEach(function(val, i) {
         list_f[i] = Math.pow(val/1.8751,2);
       });
 
