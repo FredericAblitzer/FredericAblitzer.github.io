@@ -537,9 +537,10 @@ function visualize() {
 			ctx.textAlign = "left";
 			ctx.strokeStyle = "black";
 			ctx.lineWidth = 2;
-			ctx.strokeText(''+fcurseur + " Hz (" + notecurseur + ")", 50+20+10, ycurseur - 2);
+			ctx.textBaseline = "bottom"
+			ctx.strokeText(''+fcurseur + " Hz (" + notecurseur + ")", 50+20+10, ycurseur);
 			ctx.fillStyle = couleurcurseur;
-			ctx.fillText(''+fcurseur + " Hz (" + notecurseur + ")", 50+20+10, ycurseur - 2);
+			ctx.fillText(''+fcurseur + " Hz (" + notecurseur + ")", 50+20+10, ycurseur);
 
 
       // Curseurs multiples
