@@ -221,7 +221,7 @@ var voiceSelect = document.getElementById("voice");
 var source;
 var stream;
 var osc;
-
+var gainnode;
 
 //var nombreFrames = contexteAudio.sampleRate * 5;
 //var bufferAudio = contexteAudio.createBuffer(2, nombreFrames, contexteAudio.sampleRate);
@@ -278,6 +278,12 @@ if (navigator.mediaDevices.getUserMedia) {
 				osc = contexteAudio.createOscillator();
 				osc.type = 'Sine';
 				osc.start(0);
+
+
+				gainnode = contexteAudio.createGain();
+        			gainnode.gain.value = 0;
+
+        			osc.connect(gainnode);
 
 				source.connect(splitter); // commenter si MERITE
 
@@ -1051,7 +1057,11 @@ function onMouseUp(e) {
 
 	// s'il y a un son, on le coupe
 	if (son == 1) {
-		osc.disconnect();
+				//osc.disconnect();
+    //osc.connect(gainnode);
+    gainnode.connect(contexteAudio.destination);
+    gainnode.gain.linearRampToValueAtTime(0.05, contexteAudio.currentTime);
+    gainnode.gain.linearRampToValueAtTime(0, contexteAudio.currentTime+1);
 		son = 0;
 	}
 
@@ -1061,10 +1071,11 @@ function onMouseUp(e) {
 
 function onMouseDown(e) {
 	console.log('hello dolly!')
+	gainnode.gain.value = 0;
 
 	// s'il n'y a pas de son, on le déclenche
 	if (son == 0 && visualSelect.value!='temporel') {
-		//osc.connect(contexteAudio.destination);
+		 //osc.disconnect();
 		son = 1;
 	}
 
