@@ -155,7 +155,9 @@ document.getElementById('bouton_mindBminus').addEventListener('click', modifminm
 document.getElementById('bouton_mindBplus').addEventListener('click', modifminmaxdB);
 document.getElementById('bouton_dynminus').addEventListener('click', modifminmaxdB);
 document.getElementById('bouton_dynplus').addEventListener('click', modifminmaxdB);
-document.getElementById('bouton_tap').addEventListener('click', start_trig);
+document.getElementById('bouton_tap1').addEventListener('click', start_trig);
+document.getElementById('bouton_tap2').addEventListener('click', start_trig);
+document.getElementById('bouton_tap3').addEventListener('click', start_trig);
 document.getElementById('bouton_screenshot').addEventListener('click', screenshot);
 
 
@@ -736,6 +738,8 @@ function visualize() {
 
         }
 
+
+
 				if (!waitingfortrigger) {
 					plotSpectrum(spec, 'rgb(255, 255, 255)')
 				};
@@ -1182,11 +1186,14 @@ function change_visu(e) {
       visualSelect.value = "spectre";
     break;
     case 'bouton_time_freq':
-    mindB = -80
-    dyn = 60
+    //mindB = -80
+    //dyn = 60
     select_Nfft.value = 4096;
     select_fmax.value = 4000;
     visualSelect.value = "spectrogramme";
+	ismes1 = false;
+	ismes2 = false;
+	ismes3 = false;
     break;
   }
   window.cancelAnimationFrame(drawVisual);
@@ -1223,16 +1230,18 @@ function modifminmaxdB(e) {
 
 
 function start_trig(e) {
-	switch (e.target.id) {
-		case 'bouton_tap':
-      trig_level = 0.8; // réinitialiser niveau trigger
+
+trig_level = 0.8; // réinitialiser niveau trigger
       bouton_freq.click(); // simuler clic sur bouton freq pour changer mode affichage
+
+	switch (e.target.id) {
+		case 'bouton_tap1':
 			mes = 1;
 			break;
-		case 'bouton_2':
+		case 'bouton_tap2':
 			mes = 2;
 			break;
-		case 'bouton_3':
+		case 'bouton_tap3':
 			mes = 3;
 			break;
 	}
@@ -1343,9 +1352,7 @@ function init() {
 	}
 
 	waitingfortrigger = false;
-	ismes1 = false;
-	ismes2 = false;
-	ismes3 = false;
+	
 
   updateNote();
 
