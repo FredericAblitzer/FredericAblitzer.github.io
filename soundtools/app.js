@@ -1232,7 +1232,7 @@ function modifminmaxdB(e) {
 
 function start_trig(e) {
 
-trig_level = 0.8; // réinitialiser niveau trigger
+trig_level = 0.4; // réinitialiser niveau trigger
       bouton_freq.click(); // simuler clic sur bouton freq pour changer mode affichage
 
 	switch (e.target.id) {
