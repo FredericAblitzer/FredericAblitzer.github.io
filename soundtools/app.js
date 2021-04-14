@@ -557,7 +557,7 @@ function visualize() {
 
       }
 
-			
+
       var fps_count = Math.round(1000/(now-toc)*10)/10;
       toc = now;
 
@@ -611,6 +611,7 @@ function visualize() {
       // définition de la fenêtre (dev futur : à précalculer ailleurs)
       for (let i = 0; i < bufferLength; i++) {
         w[i] = a0 - a1*Math.cos(2*Math.PI*i/bufferLength) + a2*Math.cos(4*Math.PI*i/bufferLength);
+        //w[i] = 1;
       }
 
       // application de la fenêtre
@@ -698,7 +699,7 @@ function visualize() {
 
         let i_peak_list = [];
 
-        for (var n_peak = 1; n_peak <= 5; n_peak++) {
+        for (var n_peak = 1; n_peak <= 0; n_peak++) {
 
         let toggle = 0
         let seuil = 0.01*maxds2;
@@ -1324,7 +1325,7 @@ function init() {
 	analyser.minDecibels = mindB;
 	analyser.maxDecibels = maxdB;
 
-	
+
 
   voie = select_voie.value;
 
@@ -1352,7 +1353,7 @@ function init() {
 	}
 
 	waitingfortrigger = false;
-	
+
 
   updateNote();
 
