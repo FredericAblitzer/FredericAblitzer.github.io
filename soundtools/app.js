@@ -1189,8 +1189,8 @@ function change_visu(e) {
     case 'bouton_time_freq':
     //mindB = -80
     //dyn = 60
-    select_Nfft.value = 4096;
-    select_fmax.value = 4000;
+    // select_Nfft.value = 4096;
+    // select_fmax.value = 4000;
     visualSelect.value = "spectrogramme";
 	ismes1 = false;
 	ismes2 = false;
