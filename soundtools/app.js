@@ -7,7 +7,7 @@ document.onkeyup = checkKeyUp;
 URL = window.URL || window.webkitURL;
 
 var select_fmax = document.getElementById("select_fmax");
-var slider_vitesse = document.getElementById("slider_vitesse");
+//var slider_vitesse = document.getElementById("slider_vitesse");
 var select_curseur_1 = document.getElementById("select_curseur_1");
 var select_Nfft = document.getElementById("select_Nfft");
 var select_gain = document.getElementById("select_gain");
@@ -926,12 +926,12 @@ select_fmax.onchange = function() {
 	visualize();
 };
 
-slider_vitesse.onchange = function() {
-	window.cancelAnimationFrame(drawVisual);
-	init();
-	tempctx.clearRect(0, 0, WIDTH, HEIGHT);
-	visualize();
-};
+// slider_vitesse.onchange = function() {
+// 	window.cancelAnimationFrame(drawVisual);
+// 	init();
+// 	tempctx.clearRect(0, 0, WIDTH, HEIGHT);
+// 	visualize();
+// };
 
 
 
@@ -1339,7 +1339,7 @@ function init() {
 	Nfreqmax = Math.round(Nfft * fmax / Fe);
 
 
-	dx_timefreq = slider_vitesse.value;
+	dx_timefreq = 1;//slider_vitesse.value;
 	dy_timefreq = HEIGHT2 / Nfreqmax;
 
 	dx_spectre = WIDTH / Nfreqmax;

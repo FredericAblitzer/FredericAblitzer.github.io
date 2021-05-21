@@ -21,6 +21,7 @@
 <label id="toggle"><i class="material-icons">settings</i></label>
 
 <div id="sidebar" class="collapsed">
+
 <h1>Paramètres</h1>
 
 <br>
@@ -44,10 +45,10 @@
 </select>
 <br>
 
-<br>
+<!-- <br>
 <label for="slider_vitesse">Vitesse</label>
 <input type="range" min="1" max="2" value="1" class="slider" id="slider_vitesse">
-<br>
+<br> -->
 
 
 <br>
@@ -76,27 +77,12 @@
 <br>
 <label for="select_curseur_1">Curseur</label>
 <select id="select_curseur_1">
-	<option value="none">aucun</option>	
+	<option value="none">aucun</option>
 	<option value="single" selected>simple</option>
 	<option value="harmonic">harmonique</option>
 	<option value="beam_FF">poutre libre-libre</option>
 	<option value="beam_CF">poutre encastrée-libre</option>
 </select>
-<br>
-
-
-
-
-<br>
-seuil (dB)<button id="bouton_mindBminus">-</button>
-<b id="mindB">mindB</b>
-<button id="bouton_mindBplus">+</button>
-<br>
-
-<br>
-dynamique (dB)<button id="bouton_dynminus">-</button>
-<b id="dyn">dyn</b>
-<button id="bouton_dynplus">+</button>
 <br>
 
 <br>
@@ -112,6 +98,30 @@ dynamique (dB)<button id="bouton_dynminus">-</button>
 </select>
 <br>
 
+
+<br>
+seuil (dB)<button id="bouton_mindBminus">-</button>
+<b id="mindB">mindB</b>
+<button id="bouton_mindBplus">+</button>
+<br>
+
+<br><br>
+
+<br>
+dynamique (dB)<button id="bouton_dynminus">-</button>
+<b id="dyn">dyn</b>
+<button id="bouton_dynplus">+</button>
+<br>
+
+<br>
+
+
+<br>
+<br>
+<img  height="100" src="https://fredericablitzer.github.io/soundtools/laum.png"><img  height="50" src="https://fredericablitzer.github.io/soundtools/univlemans.png"><img  height="50" src="https://fredericablitzer.github.io/soundtools/cnrs1.png"><br>
+&nbsp;<font size = "3">SOUNDTOOLS </font><font size = "2">simple tools for the analysis of sound and vibration</font><br>
+&nbsp;<font size = "2">&copy; LAUM, UMR CNRS 6613, Le Mans Université</font><br/>
+&nbsp;<font size = "2"><a href="mailto:frederic.ablitzer@univ-lemans.fr?subject=soundtools">contact</a></font><br/>
 </div>
 
 	<canvas id="visualizer"></canvas>
