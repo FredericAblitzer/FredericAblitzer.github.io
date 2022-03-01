@@ -843,6 +843,19 @@ function visualize() {
 			ctx.fillStyle = couleurcurseur;
 			ctx.fillText(''+fcurseur + " Hz (" + notecurseur + ")", xcurseur, 50);
 
+
+      if (ismes1) {
+        plotDotCursor(spectrum1, 'rgb(230, 159, 0)');
+      }
+      if (ismes2) {
+        plotDotCursor(spectrum2, 'rgb(86, 180, 233)');
+      }
+      if (ismes3) {
+        plotDotCursor(spectrum3, 'rgb(0, 158, 115)');
+      }
+
+
+
 // Curseurs multiples
       for (let i = 0; i < list_f.length; i++) {
         xcurseur1 = list_f[i]*fcurseur / fmax * WIDTH;
@@ -1356,6 +1369,32 @@ function init() {
 
 
   updateNote();
+
+}
+
+
+function plotDotCursor(dataFreq, color) {
+
+  i_cursor = Math.round(fcurseur/fmax*Nfreqmax)
+  
+  y_cursor = HEIGHT - Math.max(0, (dataFreq[i_cursor]-mindB)/dyn)*HEIGHT;
+  x_cursor = i_cursor*dx_spectre;
+
+  ctx.beginPath();
+  ctx.arc(x_cursor, y_cursor, 5, 0, 2*Math.PI, false);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.stroke();
+
+
+  ctx.font = "16px guitar-bold";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.strokeText(''+Math.floor(dataFreq[i_cursor]*10)/10 + " dB", x_cursor+10, y_cursor+10);
+  ctx.fillStyle = color;
+  ctx.fillText(''+Math.floor(dataFreq[i_cursor]*10)/10 + " dB", x_cursor+10, y_cursor+10);
+
+
 
 }
 
