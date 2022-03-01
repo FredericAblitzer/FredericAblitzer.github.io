@@ -854,7 +854,7 @@ function visualize() {
         plotDotCursor(spectrum3, 'rgb(0, 158, 115)');
       }
 
-
+      ctx.fillStyle = "white";
 
 // Curseurs multiples
       for (let i = 0; i < list_f.length; i++) {
@@ -1376,7 +1376,7 @@ function init() {
 function plotDotCursor(dataFreq, color) {
 
   i_cursor = Math.round(fcurseur/fmax*Nfreqmax)
-  
+
   y_cursor = HEIGHT - Math.max(0, (dataFreq[i_cursor]-mindB)/dyn)*HEIGHT;
   x_cursor = i_cursor*dx_spectre;
 
