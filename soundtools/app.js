@@ -1,4 +1,36 @@
+
+
 var document;
+
+$(document).ready(function () {
+    var isTouchDevice = 'ontouchstart' in document.documentElement;
+
+    console.log( "document loaded" );
+
+    $("#touchSensitive").mousedown(function(event) {
+        if (isTouchDevice == false) {
+            pushed();
+        }
+    });
+    $("#touchSensitive").mouseup(function(event) {
+        if (isTouchDevice == false) {
+            released();
+        }
+    });
+    $('#touchSensitive').on('touchstart', function(){
+        if (isTouchDevice)  {
+            pushed();
+        }
+    });
+    $('#touchSensitive').on('touchend', function(){
+        if (isTouchDevice)  {
+            released();
+        }
+    });
+});
+
+
+
 
 document.onkeydown = checkKey;
 document.onkeyup = checkKeyUp;
