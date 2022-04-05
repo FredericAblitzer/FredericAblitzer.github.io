@@ -44,6 +44,8 @@ var select_curseur_1 = document.getElementById("select_curseur_1");
 var select_Nfft = document.getElementById("select_Nfft");
 var select_gain = document.getElementById("select_gain");
 
+var hideRTspec = document.getElementById("hideRTspec");
+
 
 var v = document.getElementById('v');
 v.addEventListener("play", play);
@@ -772,9 +774,10 @@ function visualize() {
         }
 
 
-
 				if (!waitingfortrigger) {
-					plotSpectrum(spec, 'rgb(255, 255, 255)')
+          if (!hideRTspec.checked) {
+					       plotSpectrum(spec, 'rgb(255, 255, 255)')
+          }
 				};
 				if (ismes1) {
 					plotSpectrum(spectrum1, 'rgb(230, 159, 0)');
