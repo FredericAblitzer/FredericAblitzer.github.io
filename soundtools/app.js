@@ -83,7 +83,7 @@ var ImagesNotes = ["note_A3.svg", "note_A3sharp.svg", "note_B3.svg", "note_C4.sv
 var dx_timefreq;
 var dx_spectre;
 var px_par_s; // nombre de pixels par seconde
-var fcurseur = 440; // frequence du curseur
+var fcurseur = 442; // frequence du curseur
 var Nfreqmax;
 var trig_level = 0.8;
 var son = 0;
