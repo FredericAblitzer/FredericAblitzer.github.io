@@ -1352,6 +1352,16 @@ function updateNote() {
       });
 
 			break;
+
+	case "Bell_MinorThird":
+			list_f = [0.5 1 1.2 1.5 2];
+			break;
+
+	case "Bell_MajorThird":
+			list_f = [0.5 1 1.2 1.5 2];
+			break;			
+
+			
 	}
 
 	console.log(list_f)
