@@ -1358,7 +1358,7 @@ function updateNote() {
 			break;
 
 	case "Bell_MajorThird":
-			list_f = [0.5, 1, 1.2, 1.5, 2];
+			list_f = [0.5, 1, 1.25, 1.5, 2];
 			break;			
 
 			
