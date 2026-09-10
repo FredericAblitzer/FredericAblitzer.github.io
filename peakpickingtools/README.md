@@ -7,6 +7,9 @@ frederic.ablitzer@univ-lemans.fr
 
 Laboratoire d’Acoustique de l’Université du Mans (LAUM), UMR 6613, Institut d’Acoustique - Graduate School (IA-GS), CNRS, Le Mans Université, France.
 
+This web application is based on the method described in the article below.
+
+The user interface was developed with assistance from OpenAI Codex.
 
 ## Citation
 
