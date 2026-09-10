@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this application for research or academic work, please cite the article below."
+type: software
+title: "PeakPickingTools"
+version: "0.51"
+authors:
+  - family-names: "Ablitzer"
+    given-names: "Frédéric"
+    email: "frederic.ablitzer@univ-lemans.fr"
+license: MIT
+url: "https://fredericablitzer.github.io/peackpickingtools/"
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Ablitzer"
+      given-names: "Frédéric"
+  title: "Peak-picking method for identifying natural frequencies and damping ratios from free vibration measurements"
+  journal: "Acta Acustica"
+  year: 2026
+  volume: "10"
+  number: "18"
+  doi: "10.1051/aacus/2026014"

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PeakPickingTools</title>
+    <link rel="stylesheet" href="style.css">
+
+  <script src="./lib/plotly-2.35.2.min.js"></script>
+  <script src="./lib/fft.js"></script>
+  <script src="./lib/nelderMead.js"></script>
+  <script src="data/FREQ_iso.js"></script>
+</head>
+
+<body>
+
+  <div class="left-panel">
+    <div class="components-header">
+      <b>Components</b>
+      <div class="button-row">
+        <label class="toggle-switch components-switch">
+          <input type="checkbox" id="componentsViewToggle">
+          <span class="switch-text">List</span>
+          <span class="switch-visual">
+            <span class="switch-thumb"></span>
+          </span>
+          <span class="switch-text">Graph</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="components-view">
+
+      <select id="peakList" size="10"></select>
+      <div id="componentsPlot" class="components-plot hidden"></div>
+    </div>
+
+    <div id="refineProgressContainer" class="progress-container">
+      <div id="refineProgressText">Refining...</div>
+      <div class="progress-bar">
+        <div id="refineProgressBar" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="tool-tabs" role="tablist" aria-label="Left panel sections">
+      <button id="tabIdentification" class="tool-tab active" type="button" role="tab" aria-selected="true" aria-controls="panelIdentification">IDENTIFICATION</button>
+      <button id="tabAnalyse" class="tool-tab" type="button" role="tab" aria-selected="false" aria-controls="panelAnalyse">ANALYSE</button>
+    </div>
+
+    <div id="panelIdentification" class="tool-panel active" role="tabpanel" aria-labelledby="tabIdentification">
+      <div class="button-row">
+        <button id="btnLoad">📁 LOAD WAV</button>
+        <button id="btnRecord">🎤 RECORD</button>
+      </div>
+      <div class="button-row">
+        <button id="btnCut">✂️ CUT</button>
+        <button id="btnNormalize">🎚️ NORMALIZE</button>
+      </div>
+      <div class="button-row">
+        <button id="btnAdd">➕ ADD</button>
+        <button id="btnRemove">➖ REMOVE</button>
+      </div>
+      <button id="btnRefine">🔃 REFINE</button>
+      <button id="btnSave">💾 SAVE</button>
+      <div class="button-row">
+        <button id="btnPlayOriginal">▶️ ORIGINAL</button>
+        <button id="btnPlaySynth">▶️ SYNTH</button>
+      </div>
+      <label class="toggle-switch components-switch play-selected-switch">
+        <input type="checkbox" id="playSelectedToggle">
+        <span class="switch-visual">
+          <span class="switch-thumb"></span>
+        </span>
+        <span class="switch-text">▶️ SELECTED</span>
+      </label>
+      <input id="fileWav" type="file" accept=".wav,audio/wav" style="display:none;">
+
+      <label>Identification window:</label>
+      <div class="identification-window">
+        <div class="time-field">
+          <span>Start</span>
+          <input id="t0" type="number" step="0.0001" value="0.2" class="time-input">
+          <span>s</span>
+        </div>
+        <div class="time-field">
+          <span>Duration</span>
+          <input id="T"  type="number" step="0.1" value="0.5" class="time-input">
+          <span>s</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="panelAnalyse" class="tool-panel hidden" role="tabpanel" aria-labelledby="tabAnalyse">
+      <div class="analysis-control">
+        <label for="analysisMarkers">Markers</label>
+        <select id="analysisMarkers">
+          <option value="none" selected>None</option>
+          <option value="harmonics">Harmonics</option>
+          <option value="beam-free-free">Beam (free-free)</option>
+          <option value="isotropic-plate-free">Isotropic plate (free)</option>
+          <option value="beam-clamped-free">Beam (clamped-free)</option>
+        </select>
+      </div>
+      <div id="analysisMarkerIndexControl" class="analysis-control">
+        <label for="analysisMarkerIndex">Index</label>
+        <input id="analysisMarkerIndex" type="number" min="1" step="1" value="1">
+      </div>
+      <div id="lxLyControl" class="analysis-control">
+        <label for="lxLySlider">Lx/Ly</label>
+        <input id="lxLySlider" type="range" min="0" max="1000" step="1" value="0">
+        <input id="lxLyValue" type="number" min="1" max="10" step="0.01" value="1">
+      </div>
+      <div id="poissonControl" class="analysis-control">
+        <label for="poissonSlider">ν</label>
+        <input id="poissonSlider" type="range" min="0" max="20" step="1" value="10">
+        <input id="poissonValue" type="number" min="0.2" max="0.4" step="0.01" value="0.3">
+      </div>
+      <button id="btnYoungModulus" class="hidden" type="button">Calculate Young's modulus</button>
+    </div>
+    <button id="btnParameters" class="parameters-button">⚙️ PARAMETERS</button>
+    <button id="btnAboutOpen" class="about-link" type="button">About</button>
+  </div>
+
+  <div class="right-panel">
+    <div class="plot-block">
+      <div class="plot-title">Spectrum</div>
+      <div id="spectrumPlot" class="plot-container"></div>
+    </div>
+
+    <div class="plot-block">
+      <div class="plot-title">Time-domain signal</div>
+      <div id="timePlot" class="plot-container"></div>
+    </div>
+  </div>
+
+  <div id="parametersModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 style="margin:0; font-size:1.05rem;">RECORD PARAMETERS</h2>
+        <button id="btnParametersClose" class="modal-close" aria-label="Close">✖</button>
+      </div>
+      <div class="settings-group">
+        <span>Channel selection:</span>
+        <label>
+          <input type="radio" name="recordChannel" value="left" checked>
+          Left
+        </label>
+        <label>
+          <input type="radio" name="recordChannel" value="right">
+          Right
+        </label>
+      </div>
+      <div class="settings-group">
+        <label for="recordDurationInput">Recording duration (s)</label>
+        <input id="recordDurationInput" type="number" min="0.5" max="60" step="0.5" value="5">
+      </div>
+      <div class="settings-group">
+        <label for="recordSampleRateSelect">Sampling rate (Hz)</label>
+        <select id="recordSampleRateSelect">
+          <option value="8000">8000</option>
+          <option value="16000">16000</option>
+          <option value="22050">22050</option>
+          <option value="32000">32000</option>
+          <option value="44100">44100</option>
+          <option value="48000" selected>48000</option>
+          <option value="96000">96000</option>
+        </select>
+      </div>
+      <div class="button-row">
+        <button id="btnParametersSave">Save</button>
+        <button id="btnParametersCancel" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="aboutModal" class="modal-overlay" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 style="margin:0; font-size:1.05rem;">PeakPickingTools</h2>
+        <button id="btnAboutClose" class="modal-close" aria-label="Close">✖</button>
+      </div>
+      <div class="settings-group">
+        <span>Version 0.51</span>
+        <span><strong>Fr&#233;d&#233;ric Ablitzer</strong></span>
+        <span><a href="mailto:frederic.ablitzer@univ-lemans.fr">frederic.ablitzer@univ-lemans.fr</a></span>
+        <span>Laboratoire d&#8217;Acoustique de l&#8217;Universit&#233; du Mans (LAUM), UMR 6613, Institut d&#8217;Acoustique - Graduate School (IA-GS), CNRS, Le Mans Universit&#233;, France.</span>
+        <p>This web application is based on the method described in the article below. If you use this application for research or academic work, please cite:</p>
+        <p>Ablitzer F. 2026. Peak-picking method for identifying natural frequencies and damping ratios from free vibration measurements. <em>Acta Acustica</em>, <strong>10</strong>, 18. <a href="https://doi.org/10.1051/aacus/2026014" target="_blank" rel="noopener noreferrer">https://doi.org/10.1051/aacus/2026014</a>.</p>
+        <p>The user interface was developed with assistance from OpenAI Codex.</p>
+        <span>License: <a href="./LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>.</span>
+        <p>This application is provided &ldquo;as is&rdquo;, without warranty of any kind, to the extent permitted by applicable law. Third-party libraries retain their own licenses.</p>
+      </div>
+      <button id="btnAboutAgree" class="about-agree" type="button">I agree</button>
+    </div>
+  </div>
+
+  <div id="youngModulusModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 id="youngModulusModalTitle" style="margin:0; font-size:1.05rem;">CALCULATE YOUNG'S MODULUS</h2>
+        <button id="btnYoungModulusClose" class="modal-close" aria-label="Close">✖</button>
+      </div>
+      <div class="settings-group">
+        <label id="youngModulusLxLabel" for="youngModulusLx">Lx (mm)</label>
+        <input id="youngModulusLx" type="number" min="0" step="0.1" value="">
+      </div>
+      <div class="settings-group">
+        <label id="youngModulusLyLabel" for="youngModulusLy">Ly (mm)</label>
+        <input id="youngModulusLy" type="number" value="" readonly disabled>
+      </div>
+      <div class="settings-group">
+        <label for="youngModulusThickness">Thickness (mm)</label>
+        <input id="youngModulusThickness" type="number" min="0" step="0.01" value="">
+      </div>
+      <div class="settings-group">
+        <label for="youngModulusMass">Mass (g)</label>
+        <input id="youngModulusMass" type="number" min="0" step="0.01" value="">
+      </div>
+      <div class="settings-group">
+        <label for="youngModulusDensity">density (kg/m^3)</label>
+        <input id="youngModulusDensity" type="text" value="" readonly>
+      </div>
+      <div class="settings-group">
+        <label for="youngModulusResult">Young's modulus (GPa)</label>
+        <input id="youngModulusResult" type="text" value="" readonly>
+      </div>
+    </div>
+  </div>
+
+  <button id="cursorAddButton" class="cursor-add-button hidden">➕ ADD</button>
+  <button id="cursorSetStartButton" class="cursor-add-button hidden">⏱️ SET START</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
