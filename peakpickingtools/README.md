@@ -10,21 +10,20 @@ Laboratoire d’Acoustique de l’Université du Mans (LAUM), UMR 6613, Institut
 
 ## Citation
 
-Si vous utilisez cette application pour la recherche ou un travail académique,
-merci de citer :
+If you use this application for research or academic work, please cite:
 
-Ablitzer F. 2026. Peak-picking method for identifying natural frequencies and
-damping ratios from free vibration measurements. *Acta Acustica*, **10**, 18.
-<https://doi.org/10.1051/aacus/2026014>.
+> Ablitzer F. 2026. Peak-picking method for identifying natural frequencies and
+> damping ratios from free vibration measurements. *Acta Acustica*, **10**, 18.
+> https://doi.org/10.1051/aacus/2026014
 
-Le fichier [CITATION.cff](CITATION.cff) désigne cet article comme référence
-à privilégier pour la fonction de citation de GitHub. Cette demande de citation
-n’ajoute pas de condition à la licence MIT.
+The [`CITATION.cff`](CITATION.cff) file designates this article as the preferred
+reference for GitHub's citation feature. This citation request does not impose
+any additional conditions beyond those of the MIT License.
 
-## Licence
+## License
 
-L’application est distribuée sous [licence MIT](LICENSE), qui autorise notamment
-les usages commerciaux et prévoit une fourniture en l’état, sans garantie.
-Les bibliothèques tierces conservent leurs propres licences et mentions dans
-leurs fichiers sources. L’ancien visuel `assets/by-nc.png`, conservé comme
-ressource inutilisée, ne définit plus la licence de l’application.
+This application is distributed under the [MIT License](LICENSE), which permits
+commercial use and provides the software "as is", without warranty.
+
+Third-party libraries remain subject to their respective licenses and notices,
+as specified in their source files.
