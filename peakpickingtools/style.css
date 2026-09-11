@@ -1,34 +1,40 @@
 body {
+      --ui-font-size: 1.05rem;
+      --panel-gap: 10px;
+      --button-padding: 8px;
       margin: 0;
       display: flex;
       height: 100vh;
       font-family: sans-serif;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       line-height: 1.4;
     }
 
     .left-panel {
       width: 30%;
+      min-width: 320px;
+      overflow-y: auto;
       border-right: 1px solid #ccc;
       padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: var(--panel-gap);
       box-sizing: border-box;
     }
 
     .right-panel {
       width: 70%;
+      min-width: 0;
       padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: var(--panel-gap);
       box-sizing: border-box;
     }
 
     select {
       flex: 1;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       width: 100%;
     }
 
@@ -40,7 +46,7 @@ body {
     }
 
     .plot-title {
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       margin-bottom: 5px;
     }
 
@@ -53,12 +59,12 @@ body {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: var(--panel-gap);
     }
 
     .components-switch {
       flex: 0 0 auto;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       padding: 4px 6px;
     }
 
@@ -67,8 +73,8 @@ body {
       align-self: stretch;
       width: auto;
       min-width: 0;
-      min-height: calc(1.05rem + 16px);
-      padding: 8px;
+      min-height: calc(var(--ui-font-size) + 2 * var(--button-padding));
+      padding: var(--button-padding);
       gap: 6px;
       box-sizing: border-box;
     }
@@ -77,10 +83,19 @@ body {
       line-height: 1;
     }
 
+    /* Preserve the list/graph area; scroll the panel if controls no longer fit. */
+    .left-panel > :not(.components-view) {
+      flex-shrink: 0;
+    }
+
     .components-view {
       display: flex;
       flex-direction: column;
-      flex: 1;
+      flex: 1 0 8rem;
+      min-height: 8rem;
+    }
+
+    #peakList {
       min-height: 0;
     }
 
@@ -92,7 +107,7 @@ body {
     }
 
     .progress-container {
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       color: #b00;
       display: flex;
       flex-direction: column;
@@ -155,13 +170,13 @@ body {
     .tool-panel {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: var(--panel-gap);
     }
 
     .analysis-control {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) 88px;
-      gap: 10px;
+      gap: var(--panel-gap);
       align-items: center;
       border: 1px solid #ddd;
       border-radius: 8px;
@@ -181,16 +196,16 @@ body {
     }
 
     button {
-      font-size: 1.05rem;
-      padding: 8px;
+      font-size: var(--ui-font-size);
+      padding: var(--button-padding);
     }
 
     label {
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
     }
 
     input {
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
     }
 
     .identification-window {
@@ -221,7 +236,7 @@ body {
       border: none;
       color: #0b5ed7;
       text-decoration: underline;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       cursor: pointer;
       align-self: flex-start;
       padding: 0;
@@ -232,7 +247,7 @@ body {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: var(--panel-gap);
       border: 1px solid #ccc;
       border-radius: 6px;
       padding: 6px 8px;
@@ -295,14 +310,14 @@ body {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: var(--panel-gap);
       margin-bottom: 15px;
     }
 
     .modal-close {
       background: none;
       border: none;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       cursor: pointer;
     }
 
@@ -321,7 +336,7 @@ body {
       position: absolute;
       transform: translate(-50%, -30px);
       padding: 4px 8px;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       z-index: 1200;
       pointer-events: auto;
       display: flex;
@@ -330,6 +345,7 @@ body {
     }
 
     #aboutModal .modal-window {
+      width: min(90%, 650px);
       max-height: 90vh;
       overflow-y: auto;
       overflow-wrap: anywhere;
@@ -348,7 +364,7 @@ body {
       border-radius: 6px;
       background: #075ea8;
       color: #fff;
-      font-size: 1.05rem;
+      font-size: var(--ui-font-size);
       font-weight: 700;
       cursor: pointer;
     }
@@ -360,4 +376,25 @@ body {
     #aboutModal .about-agree:focus-visible {
       outline: 3px solid #075ea8;
       outline-offset: 3px;
+    }
+
+    /* Use the browser viewport, including windows on smaller laptop screens. */
+    @media (max-height: 800px), (max-width: 1400px) {
+      body {
+        --ui-font-size: 0.95rem;
+        --panel-gap: 6px;
+        --button-padding: 5px;
+      }
+
+      .analysis-control {
+        padding: 8px;
+      }
+    }
+
+    @media (max-height: 650px), (max-width: 1100px) {
+      body {
+        --ui-font-size: 0.875rem;
+        --panel-gap: 4px;
+        --button-padding: 4px;
+      }
     }
