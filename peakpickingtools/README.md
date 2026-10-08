@@ -1,5 +1,5 @@
 # PeakPickingTools
-Version 0.52 — 2026-09-12
+Version 0.53 — 2026-10-08
 
 **Frédéric Ablitzer**
 
