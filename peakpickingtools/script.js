@@ -1667,6 +1667,48 @@
       return lines.join('\n') + '\n';
     }
 
+    function parseModesDatContent(text) {
+      const frequencies = [];
+      const damping = [];
+      text.split(/\r\n|\n|\r/).forEach((line, index) => {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('%')) return;
+        const columns = trimmed.split(/\s+/);
+        const frequency = Number(columns[0]);
+        const xi = Number(columns[1]);
+        const omega = hzToRadPerSec(frequency);
+        if (columns.length < 2 || !Number.isFinite(omega) || frequency <= 0 ||
+            !Number.isFinite(xi) || xi < 0 || xi >= 1) {
+          throw new Error(`Invalid data on line ${index + 1}: expected f_n > 0 (Hz) and 0 <= xi_n < 1.`);
+        }
+        frequencies.push(omega);
+        damping.push(xi);
+      });
+      if (!frequencies.length) {
+        throw new Error('No components found in the DAT file.');
+      }
+      return { frequencies, damping };
+    }
+
+    function importModesDatContent(text) {
+      const { frequencies, damping } = parseModesDatContent(text);
+      const windowData = extractWavWindowData();
+      if (!windowData) return;
+      const result = findAmplitudes(frequencies, damping, windowData.tFit, windowData.yFit);
+      if (!result || !Number.isFinite(result.res) ||
+          !result.A_n.every(Number.isFinite) || !result.B_n.every(Number.isFinite)) {
+        throw new Error('Failed to fit amplitudes to the current signal. Components were not replaced.');
+      }
+      // Commit only after parsing and fitting succeed; ignore amplitudes in the file.
+      omega_n = frequencies;
+      xi_n = damping;
+      A_n = result.A_n;
+      B_n = result.B_n;
+      sortModesByFrequency();
+      redrawAll();
+      highlightSelectedMode();
+    }
+
     function buildMetadataText(baseName) {
       const now = new Date();
       const t0Val = parseFloat(document.getElementById('t0').value);
@@ -1893,6 +1935,8 @@
     const btnRemove = document.getElementById('btnRemove');
     const btnRefine = document.getElementById('btnRefine');
     const btnSave = document.getElementById('btnSave');
+    const btnImport = document.getElementById('btnImport');
+    const fileDatInput = document.getElementById('fileDat');
     const btnPlaySynth = document.getElementById('btnPlaySynth');
     const btnPlayOriginal = document.getElementById('btnPlayOriginal');
     const playSelectedToggle = document.getElementById('playSelectedToggle');
@@ -2928,6 +2972,29 @@
     if (btnSave) {
       btnSave.addEventListener('click', () => {
         saveSessionFiles();
+      });
+    }
+
+    if (btnImport && fileDatInput) {
+      btnImport.addEventListener('click', () => {
+        if (!wavData || !wavData.length) {
+          alert('Load or record a WAV signal before importing components.');
+          return;
+        }
+        fileDatInput.click();
+      });
+      fileDatInput.addEventListener('change', async () => {
+        const file = fileDatInput.files[0];
+        if (!file) return;
+        btnImport.disabled = true;
+        try {
+          importModesDatContent(await file.text());
+        } catch (error) {
+          alert(`Import failed: ${error.message}`);
+        } finally {
+          fileDatInput.value = '';
+          btnImport.disabled = false;
+        }
       });
     }
 
