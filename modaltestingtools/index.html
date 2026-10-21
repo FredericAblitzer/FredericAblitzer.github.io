@@ -86,8 +86,7 @@ h1, h2 { margin: 0; font-size: var(--ui-font-size); font-weight: 600; }
   flex-shrink: 0;
 }
 
-.panel-heading h2 { color: #777; }
-.panel-heading h2 span { margin-left: 6px; color: #222; }
+.panel-heading h2 { color: #222; }
 
 .settings { display: flex; flex-direction: column; gap: var(--panel-gap); }
 .settings > div {
@@ -253,7 +252,7 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 <body>
   <main class="columns">
     <div class="panel-column controls-column">
-      <section class="panel"><div class="panel-heading"><h2>01 <span>Acquisition</span></h2></div>
+      <section class="panel"><div class="panel-heading"><h2>Acquisition</h2></div>
         <div class="settings">
           <div><label for="level">Threshold (FS)</label><input id="level" type="number" value="0.2" min="0.001" max="1" step="any" required></div>
           <div><label for="pretrigger">Pretrigger (s)</label><input id="pretrigger" type="number" value="0.1" min="0" max="10" step="0.01" required></div>
@@ -268,22 +267,22 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
           <p id="status" role="status" aria-live="polite"></p>
         </div>
       </section>
-      <section class="panel"><div class="panel-heading"><h2>03 <span>Display</span></h2></div>
+      <section class="panel"><div class="panel-heading"><h2>Display</h2></div>
         <div class="settings">
           <div><label for="frequencyMax">Max frequency (Hz)</label><input id="frequencyMax" type="number" value="5000" min="0.1" step="any" required></div>
         </div>
       </section>
-      <section class="panel"><div class="panel-heading"><h2>05 <span>Acquisitions</span></h2></div>
+      <section class="panel"><div class="panel-heading"><h2>Acquisitions</h2></div>
         <select id="history" size="8" aria-label="Saved acquisitions"></select>
         <button id="export" type="button" disabled>Export</button>
         <button id="delete" type="button" disabled aria-label="Delete selected acquisition">🗑 Delete</button>
       </section>
     </div>
     <div class="panel-column plots-column">
-      <section class="panel compact-plot"><div class="panel-heading"><h2>02 <span>Time signal</span></h2></div><div id="waveform" aria-label="Time signals for channels 1 and 2"></div></section>
-      <section class="panel compact-plot"><div class="panel-heading"><h2>04 <span>Spectrum</span></h2></div><div id="spectrum" aria-label="Spectra for channels 1 and 2"></div></section>
-      <section class="panel"><div class="panel-heading"><h2>06 <span>FRF H2</span></h2></div><div id="frf" aria-label="H2 FRF magnitude in dB, input channel 1, output channel 2"></div></section>
-      <section class="panel"><div class="panel-heading"><h2>07 <span>Coherence</span></h2></div><div id="coherence" aria-label="Magnitude-squared coherence between channels 1 and 2"></div></section>
+      <section class="panel compact-plot"><div class="panel-heading"><h2>Time signal</h2></div><div id="waveform" aria-label="Time signals for channels 1 and 2"></div></section>
+      <section class="panel compact-plot"><div class="panel-heading"><h2>Spectrum</h2></div><div id="spectrum" aria-label="Spectra for channels 1 and 2"></div></section>
+      <section class="panel"><div class="panel-heading"><h2>FRF H2</h2></div><div id="frf" aria-label="H2 FRF magnitude in dB, input channel 1, output channel 2"></div></section>
+      <section class="panel"><div class="panel-heading"><h2>Coherence</h2></div><div id="coherence" aria-label="Magnitude-squared coherence between channels 1 and 2"></div></section>
     </div>
   </main>
   <dialog id="aboutModal" aria-labelledby="aboutTitle">
