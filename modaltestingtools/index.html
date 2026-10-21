@@ -1,0 +1,1233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ModalTesting — Acquisition</title>
+  <style>
+/* styles.css */
+:root {
+  color-scheme: light;
+  font-family: sans-serif;
+  color: #222;
+  background: #fff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  --ui-font-size: 1.05rem;
+  --panel-gap: 10px;
+  --button-padding: 8px;
+  margin: 0;
+  padding: 10px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  font-size: var(--ui-font-size);
+  line-height: 1.4;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  padding: 0 0 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+h1, h2 { margin: 0; font-size: var(--ui-font-size); font-weight: 600; }
+
+.grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 3fr) minmax(0, 7fr);
+  grid-template-rows: minmax(340px, 1.3fr) repeat(2, minmax(140px, 1fr));
+  gap: var(--panel-gap);
+}
+
+.columns {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 3fr) minmax(0, 7fr);
+  align-items: start;
+  gap: var(--panel-gap);
+}
+
+.panel-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: var(--panel-gap);
+}
+
+.controls-column > .placeholder { min-height: 140px; }
+.plots-column > .panel { min-height: 340px; }
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-gap);
+  min-width: 0;
+  min-height: 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  flex-shrink: 0;
+}
+
+.panel-heading h2 { color: #777; }
+.panel-heading h2 span { margin-left: 6px; color: #222; }
+
+.settings { display: flex; flex-direction: column; gap: var(--panel-gap); }
+.settings > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px;
+  gap: var(--panel-gap);
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+label, input, button, select { font: inherit; }
+#channel { padding: 4px 6px; border: 1px solid #ccc; border-radius: 4px; background: #fff; color: #222; }
+input {
+  width: 100%;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #222;
+}
+
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.actions button { flex: 1; }
+button {
+  padding: var(--button-padding);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #f4f4f4;
+  color: #222;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover:not(:disabled) { background: #e8e8e8; }
+button.primary { background: #0b5ed7; border-color: #0b5ed7; color: #fff; }
+button.primary:hover:not(:disabled) { background: #094fb5; border-color: #094fb5; }
+button:disabled, input:disabled { opacity: .5; cursor: default; }
+:focus-visible { outline: 2px solid #0b5ed7; outline-offset: 2px; }
+output { flex-basis: 100%; text-align: right; font-variant-numeric: tabular-nums; }
+
+p { margin: 0; }
+#status { color: #555; overflow-wrap: anywhere; }
+#status:empty { display: none; }
+
+progress {
+  display: block;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #eee;
+  accent-color: #ff4d4d;
+}
+progress::-webkit-progress-bar { background: #eee; border-radius: 3px; }
+progress::-webkit-progress-value { background: #ff4d4d; border-radius: 3px; }
+progress::-moz-progress-bar { background: #ff4d4d; border-radius: 3px; }
+
+#waveform, #spectrum, #frf, #coherence { flex: 1; width: 100%; height: 0; min-height: 260px; }
+.placeholder { align-items: center; justify-content: center; color: #888; background: #fafafa; }
+.block-number { color: #888; }
+.placeholder h2 { font-weight: 400; }
+
+@media (max-height: 800px), (max-width: 1400px) {
+  body { --ui-font-size: .95rem; --panel-gap: 6px; --button-padding: 5px; }
+  .settings > div { padding: 8px; }
+}
+
+@media (max-height: 650px), (max-width: 1100px) {
+  body { --ui-font-size: .875rem; --panel-gap: 4px; --button-padding: 4px; }
+}
+
+@media (max-width: 700px) {
+  .columns { grid-template-columns: minmax(0, 1fr); }
+  .grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; }
+  .placeholder { min-height: 140px; }
+}
+
+/* Keep numeric validation while hiding the increment/decrement controls. */
+input[type="number"] { appearance: textfield; -moz-appearance: textfield; }
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* styles_v3.css */
+#history {
+  width: 100%;
+  min-height: 180px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  color: #222;
+  font: inherit;
+}
+#history option { padding: 6px 8px; }
+#history:disabled { opacity: .5; }
+#delete { color: #b42318; }
+#delete:hover:not(:disabled) { background: #fff0ee; border-color: #b42318; }
+
+/* Reserve three text lines so acquisition messages do not move the panels. */
+.acquisition-messages {
+  height: 4.2em;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+#averageIndicators { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0; }
+.average-dot { width: 13px; height: 13px; flex-shrink: 0; border: 1.5px solid #888; border-radius: 50%; background: transparent; }
+.average-dot.clean { background: #218739; border-color: #218739; }
+.average-dot.clipped { background: #d32f2f; border-color: #d32f2f; }
+#triggerState { color: #0b5ed7; }
+#triggerState:empty { display: none; }
+
+.plots-column > .compact-plot { min-height: 280px; }
+.compact-plot #waveform, .compact-plot #spectrum { min-height: 220px; }
+/* Share the available desktop height between the four plots. */
+@media (min-width: 701px) {
+  body { padding: 6px; --panel-gap: 6px; }
+  .columns { flex: none; height: max(620px, calc(100vh - 12px)); height: max(620px, calc(100dvh - 12px)); }
+  .plots-column { height: 100%; display: grid; grid-template-rows: repeat(4, minmax(0, 1fr)); }
+  .plots-column > .panel { min-height: 0; padding: 4px 6px; gap: 0; }
+  .plots-column .panel-heading h2 { font-size: .85rem; }
+  .plots-column #waveform, .plots-column #spectrum,
+  .plots-column #frf, .plots-column #coherence { min-height: 0; }
+  .controls-column { height: 100%; min-height: 0; }
+  .controls-column > .panel { flex-shrink: 0; padding: 8px; }
+  .controls-column .settings > div { padding: 6px; }
+  .controls-column > .panel:last-child { flex: 1; min-height: 180px; }
+  .controls-column #history { flex: 1; height: 0; min-height: 60px; }
+}
+#averages, #pointNumber { appearance: auto; -moz-appearance: auto; }
+#pointNumber::-webkit-inner-spin-button,
+#pointNumber::-webkit-outer-spin-button,
+#averages::-webkit-inner-spin-button,
+#averages::-webkit-outer-spin-button { -webkit-appearance: auto; opacity: 1; }
+/* Opening information window. */
+#aboutModal {
+  width: min(90%, 650px);
+  max-height: 90vh;
+  padding: 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  font-size: var(--ui-font-size);
+}
+#aboutModal::backdrop { background: rgba(0, 0, 0, .4); }
+.about-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+.about-close { background: none; border: none; }
+.about-content { display: flex; flex-direction: column; gap: 8px; }
+.about-content hr { border: 0; height: 2px; background: #075ea8; width: 100%; margin: 12px 0; }
+.about-agree { width: 100%; margin-top: 16px; padding: 12px 20px; border: 0; border-radius: 6px; background: #075ea8; color: #fff; }
+.about-agree:hover:not(:disabled) { background: #064b86; }
+  </style>
+</head>
+<body>
+  <main class="columns">
+    <div class="panel-column controls-column">
+      <section class="panel"><div class="panel-heading"><h2>01 <span>Acquisition</span></h2></div>
+        <div class="settings">
+          <div><label for="level">Threshold (FS)</label><input id="level" type="number" value="0.2" min="0.001" max="1" step="any" required></div>
+          <div><label for="pretrigger">Pretrigger (s)</label><input id="pretrigger" type="number" value="0.1" min="0" max="10" step="0.01" required></div>
+          <div><label for="duration">Total duration (s)</label><input id="duration" type="number" value="2" min="0.1" max="120" step="0.1" required></div>
+          <div><label for="averages">Averages</label><input id="averages" type="number" value="1" min="1" step="1" required></div>
+          <div><label for="pointNumber">Point number</label><input id="pointNumber" type="number" value="1" min="1" step="1" required></div>
+        </div>
+        <div class="actions"><button id="start" class="primary" type="button">▶ Start</button><button id="stop" type="button" disabled>Stop</button></div>
+        <div class="acquisition-messages">
+          <p id="triggerState" role="status" aria-live="polite"></p>
+          <div id="averageIndicators" role="img" aria-label="Measurements pending"></div>
+          <p id="status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+      <section class="panel"><div class="panel-heading"><h2>03 <span>Display</span></h2></div>
+        <div class="settings">
+          <div><label for="frequencyMax">Max frequency (Hz)</label><input id="frequencyMax" type="number" value="5000" min="0.1" step="any" required></div>
+        </div>
+      </section>
+      <section class="panel"><div class="panel-heading"><h2>05 <span>Acquisitions</span></h2></div>
+        <select id="history" size="8" aria-label="Saved acquisitions"></select>
+        <button id="export" type="button" disabled>Export</button>
+        <button id="delete" type="button" disabled aria-label="Delete selected acquisition">🗑 Delete</button>
+      </section>
+    </div>
+    <div class="panel-column plots-column">
+      <section class="panel compact-plot"><div class="panel-heading"><h2>02 <span>Time signal</span></h2></div><div id="waveform" aria-label="Time signals for channels 1 and 2"></div></section>
+      <section class="panel compact-plot"><div class="panel-heading"><h2>04 <span>Spectrum</span></h2></div><div id="spectrum" aria-label="Spectra for channels 1 and 2"></div></section>
+      <section class="panel"><div class="panel-heading"><h2>06 <span>FRF H2</span></h2></div><div id="frf" aria-label="H2 FRF magnitude in dB, input channel 1, output channel 2"></div></section>
+      <section class="panel"><div class="panel-heading"><h2>07 <span>Coherence</span></h2></div><div id="coherence" aria-label="Magnitude-squared coherence between channels 1 and 2"></div></section>
+    </div>
+  </main>
+  <dialog id="aboutModal" aria-labelledby="aboutTitle">
+    <div class="about-header">
+      <h2 id="aboutTitle">ModalTestingTools</h2>
+      <button id="btnAboutClose" class="about-close" type="button" aria-label="Close">✖</button>
+    </div>
+    <div class="about-content">
+      <p>Version 0.8</p>
+      <p><strong>Frédéric Ablitzer</strong></p>
+      <p><a href="mailto:frederic.ablitzer@univ-lemans.fr">frederic.ablitzer@univ-lemans.fr</a></p>
+      <p>Laboratoire d’Acoustique de l’Université du Mans (LAUM), UMR 6613, Institut d’Acoustique - Graduate School (IA-GS), CNRS, Le Mans Université, France.</p>
+      <hr>
+      <p>The user interface was developed with assistance from OpenAI Codex.</p>
+      <p>License: <a href="./LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>.</p>
+      <p>This application is provided “as is”, without warranty of any kind, to the extent permitted by applicable law. Third-party libraries retain their own licenses.</p>
+    </div>
+    <button id="btnAboutAgree" class="about-agree" type="button" autofocus>I agree</button>
+  </dialog>
+  <script>
+  {
+    const about = document.getElementById('aboutModal');
+    const closeAbout = () => about.close();
+    document.getElementById('btnAboutClose').addEventListener('click', closeAbout);
+    document.getElementById('btnAboutAgree').addEventListener('click', closeAbout);
+    about.addEventListener('close', () => document.getElementById('start').focus());
+    about.showModal();
+  }
+  </script>
+  <!-- Libraries stay external; all application code is below. -->
+  <script src="https://cdn.plot.ly/plotly-3.1.0.min.js"></script>
+  <script src="fft.js"></script>
+  <script src="vendor/jszip.min.js"></script>
+  <script>
+// trigger-capture.js
+'use strict';
+// All sample indices refer to the same clock for both channels.
+class TriggerCapture {
+  constructor(rate, level, preSeconds, totalSeconds) {
+    this.rate = rate;
+    this.level = level;
+    this.preFrames = Math.round(preSeconds * rate);
+    this.target = Math.round(totalSeconds * rate);
+    if (!Number.isFinite(this.target) || !Number.isFinite(this.preFrames) || this.preFrames < 0 || this.target <= this.preFrames) {
+      throw new Error('Pretrigger must be shorter than the total duration, with at least one sample after the trigger.');
+    }
+    this.postFrames = this.target - this.preFrames;
+    this.channels = [new Float32Array(this.target), new Float32Array(this.target)];
+    this.historySize = Math.max(this.preFrames, Math.round(2 * rate), 1);
+    this.history = [new Float32Array(this.historySize), new Float32Array(this.historySize)];
+    this.historyCount = 0;
+    this.writeIndex = 0;
+    this.previous = 0;
+    this.count = 0;
+    this.triggered = false;
+    this.clipped = false;
+  }
+  get done() { return this.triggered && this.count === this.target; }
+  historyTail(channel, count) {
+    const result = new Float32Array(count);
+    const start = (this.writeIndex - count + this.historySize) % this.historySize;
+    const first = Math.min(count, this.historySize - start);
+    result.set(this.history[channel].subarray(start, start + first));
+    result.set(this.history[channel].subarray(0, count - first), first);
+    return result;
+  }
+  append(left, right) {
+    for (let i = 0; i < left.length && !this.done; i++) {
+      const amplitude = Math.abs(left[i]);
+      if (!this.triggered && this.historyCount >= this.preFrames && this.previous < this.level && amplitude >= this.level) {
+        for (let ch = 0; ch < 2; ch++) {
+          const pre = this.historyTail(ch, this.preFrames);
+          this.channels[ch].set(pre);
+          if (pre.some(value => Math.abs(value) >= .999)) this.clipped = true;
+        }
+        this.count = this.preFrames;
+        this.triggered = true;
+      }
+      if (this.triggered) {
+        this.channels[0][this.count] = left[i];
+        this.channels[1][this.count++] = right[i];
+        if (amplitude >= .999 || Math.abs(right[i]) >= .999) this.clipped = true;
+      } else {
+        this.history[0][this.writeIndex] = left[i];
+        this.history[1][this.writeIndex] = right[i];
+        this.writeIndex = (this.writeIndex + 1) % this.historySize;
+        this.historyCount = Math.min(this.historyCount + 1, this.historySize);
+      }
+      this.previous = amplitude;
+    }
+  }
+}
+
+// spectrum.js
+'use strict';
+// One-sided peak-amplitude spectrum, rectangular window, no padding or detrending.
+// Nayuki's unnormalized forward FFT operates on copies of the recorded samples.
+function amplitudeSpectrum(samples, sampleRate) {
+  const n = samples.length;
+  if (!n) return { frequency: new Float64Array(0), amplitude: new Float64Array(0) };
+  const real = Float64Array.from(samples);
+  const imaginary = new Float64Array(n);
+  transform(real, imaginary);
+  const bins = Math.floor(n / 2) + 1;
+  const frequency = new Float64Array(bins);
+  const amplitude = new Float64Array(bins);
+  for (let k = 0; k < bins; k++) {
+    frequency[k] = k * sampleRate / n;
+    const scale = k === 0 || (n % 2 === 0 && k === n / 2) ? 1 : 2;
+    amplitude[k] = scale * Math.hypot(real[k], imaginary[k]) / n;
+  }
+  return { frequency, amplitude };
+}
+
+// frf.js
+'use strict';
+// H2 = Syy / Sxy, with Sxy = X * conjugate(Y).
+// Full-record rectangular window, one impact, no ensemble averaging.
+// Common spectral normalization cancels in the ratio. On one record H2 = Y/X.
+function h2Frf(input, output, sampleRate) {
+  if (input.length !== output.length) throw new Error('Both channels must have the same length.');
+  if (!(sampleRate > 0) || !Number.isFinite(sampleRate)) throw new Error('Invalid sample rate.');
+  const n = input.length;
+  if (!n) return { frequency: new Float64Array(0), magnitudeDb: [] };
+  const xr = Float64Array.from(input), xi = new Float64Array(n);
+  const yr = Float64Array.from(output), yi = new Float64Array(n);
+  transform(xr, xi);
+  transform(yr, yi);
+  const bins = Math.floor(n / 2) + 1;
+  let maxX = 0, maxY = 0;
+  for (let k = 0; k < bins; k++) {
+    maxX = Math.max(maxX, Math.hypot(xr[k], xi[k]));
+    maxY = Math.max(maxY, Math.hypot(yr[k], yi[k]));
+  }
+  const frequency = new Float64Array(bins);
+  const magnitudeDb = new Array(bins).fill(null);
+  for (let k = 0; k < bins; k++) {
+    frequency[k] = k * sampleRate / n;
+    // Reject numerical FFT residue relative to each channel's peak, not a noise estimate.
+    if (Math.hypot(xr[k], xi[k]) <= maxX * 1e-12 || Math.hypot(yr[k], yi[k]) <= maxY * 1e-12) continue;
+    const syy = yr[k] * yr[k] + yi[k] * yi[k];
+    const sxyReal = xr[k] * yr[k] + xi[k] * yi[k];
+    const sxyImag = xi[k] * yr[k] - xr[k] * yi[k];
+    const crossMagnitude = Math.hypot(sxyReal, sxyImag);
+    const db = 20 * (Math.log10(syy) - Math.log10(crossMagnitude));
+    if (Number.isFinite(db)) magnitudeDb[k] = db;
+  }
+  return { frequency, magnitudeDb };
+}
+
+// Ensemble averages of spectral products, computed before forming H2 or taking dB.
+class FRFAverage {
+  constructor(requested) {
+    if (!Number.isSafeInteger(requested) || requested < 1) throw new Error('Averages must be a positive integer.');
+    this.requested = requested;
+    this.measurements = [];
+  }
+  get count() { return this.measurements.length; }
+  add(record) {
+    const n = record.channels[0].length;
+    if (!n || record.channels[1].length !== n) throw new Error('Both channels must have the same nonzero length.');
+    if (this.count >= this.requested) throw new Error('This averaging group is already complete.');
+    if (this.count && (n !== this.n || record.sampleRate !== this.rate || record.triggerIndex !== this.preFrames)) {
+      throw new Error('Averaged measurements must have matching length, sample rate and pretrigger.');
+    }
+    if (!this.count) {
+      this.n = n; this.rate = record.sampleRate; this.preFrames = record.triggerIndex;
+      this.bins = Math.floor(n / 2) + 1;
+      this.xx = new Float64Array(this.bins); this.yy = new Float64Array(this.bins);
+      this.xyReal = new Float64Array(this.bins); this.xyImag = new Float64Array(this.bins);
+      this.frequency = Float64Array.from({ length: this.bins }, (_, k) => k * this.rate / n);
+    }
+    const xr = Float64Array.from(record.channels[0]), xi = new Float64Array(n);
+    const yr = Float64Array.from(record.channels[1]), yi = new Float64Array(n);
+    transform(xr, xi); transform(yr, yi);
+    const amplitudes = [new Float64Array(this.bins), new Float64Array(this.bins)];
+    for (let k = 0; k < this.bins; k++) {
+      // Normalize FFTs by N. Products are two-sided bin powers, not PSDs per Hz.
+      const a = xr[k] / n, b = xi[k] / n, c = yr[k] / n, d = yi[k] / n;
+      const xx = a * a + b * b, yy = c * c + d * d;
+      this.xx[k] += xx; this.yy[k] += yy;
+      this.xyReal[k] += a * c + b * d; // X * conjugate(Y)
+      this.xyImag[k] += b * c - a * d;
+      const scale = k === 0 || (n % 2 === 0 && k === n / 2) ? 1 : 2;
+      amplitudes[0][k] = scale * Math.sqrt(xx);
+      amplitudes[1][k] = scale * Math.sqrt(yy);
+    }
+    record.spectra = amplitudes.map(amplitude => ({ frequency: this.frequency, amplitude }));
+    this.measurements.push(record);
+  }
+  snapshot() {
+    if (!this.count) throw new Error('No completed measurements to average.');
+    const spectralMeans = {};
+    for (const key of ['xx', 'yy', 'xyReal', 'xyImag']) spectralMeans[key] = this[key].map(value => value / this.count);
+    const spectra = ['xx', 'yy'].map(key => ({ frequency: this.frequency,
+      amplitude: spectralMeans[key].map((power, k) => {
+        const scale = k === 0 || (this.n % 2 === 0 && k === this.n / 2) ? 1 : 2;
+        return scale * Math.sqrt(power);
+      }) }));
+    let maxX = 0, maxY = 0;
+    for (let k = 0; k < this.bins; k++) {
+      maxX = Math.max(maxX, spectralMeans.xx[k]); maxY = Math.max(maxY, spectralMeans.yy[k]);
+    }
+    const magnitudeDb = new Array(this.bins).fill(null);
+    const magnitudeSquared = new Array(this.bins).fill(null);
+    const real = new Array(this.bins).fill(null), imag = new Array(this.bins).fill(null);
+    for (let k = 0; k < this.bins; k++) {
+      const xx = spectralMeans.xx[k], yy = spectralMeans.yy[k];
+      const cross = Math.hypot(spectralMeans.xyReal[k], spectralMeans.xyImag[k]);
+      if (xx <= maxX * 1e-24 || yy <= maxY * 1e-24) continue;
+      const coherence = (cross / Math.sqrt(xx * yy)) ** 2;
+      if (Number.isFinite(coherence)) magnitudeSquared[k] = Math.max(0, Math.min(1, coherence));
+      if (cross <= Math.sqrt(xx * yy) * 1e-12) continue;
+      const value = 20 * (Math.log10(yy) - Math.log10(cross));
+      if (Number.isFinite(value)) {
+        magnitudeDb[k] = value;
+        // H2 = Syy / Sxy, with Sxy = X * conjugate(Y).
+        real[k] = (yy / cross) * (spectralMeans.xyReal[k] / cross);
+        imag[k] = -(yy / cross) * (spectralMeans.xyImag[k] / cross);
+      }
+    }
+    return { ...this.measurements[this.count - 1], measurements: this.measurements.slice(),
+      averagesRequested: this.requested, averagesCompleted: this.count, complete: this.count === this.requested,
+      timeSignalMeasurement: this.count, spectra, spectralMeans,
+      frf: { frequency: this.frequency, magnitudeDb, real, imag },
+      coherence: { frequency: this.frequency, magnitudeSquared } };
+  }
+}
+
+// export-zip.js
+'use strict';
+
+function stereoFloatWav(channels, sampleRate) {
+  if (channels.length !== 2 || channels[0].length !== channels[1].length) throw new Error('WAV export requires two channels of equal length.');
+  if (!Number.isInteger(sampleRate) || sampleRate <= 0 || sampleRate > 0xffffffff / 8) throw new Error('Invalid WAV sample rate.');
+  const frames = channels[0].length;
+  const dataBytes = frames * 8;
+  if (dataBytes > 0xffffffff - 50) throw new Error('Acquisition is too large for a RIFF WAV file.');
+  const bytes = new Uint8Array(58 + dataBytes);
+  const view = new DataView(bytes.buffer);
+  const text = (offset, value) => { for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i)); };
+  text(0, 'RIFF'); view.setUint32(4, bytes.length - 8, true); text(8, 'WAVE');
+  text(12, 'fmt '); view.setUint32(16, 18, true);
+  view.setUint16(20, 3, true); // WAVE_FORMAT_IEEE_FLOAT
+  view.setUint16(22, 2, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 8, true);
+  view.setUint16(32, 8, true); view.setUint16(34, 32, true);
+  view.setUint16(36, 0, true); // No format extension.
+  text(38, 'fact'); view.setUint32(42, 4, true); view.setUint32(46, frames, true);
+  text(50, 'data'); view.setUint32(54, dataBytes, true);
+  for (let i = 0; i < frames; i++) {
+    view.setFloat32(58 + i * 8, channels[0][i], true);
+    view.setFloat32(62 + i * 8, channels[1][i], true);
+  }
+  return bytes;
+}
+
+async function exportDat(count, row) {
+  const chunks = [];
+  for (let start = 0; start < count; start += 8192) {
+    const lines = [];
+    for (let i = start; i < Math.min(count, start + 8192); i++) {
+      lines.push(row(i).map(value => value == null || !Number.isFinite(value) ? 'NaN' : String(value)).join('\t'));
+    }
+    chunks.push(lines.join('\n') + '\n');
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+  return chunks.join('');
+}
+
+function exportMetadata(record) {
+  const { channels, spectra, frf, coherence, measurements, spectralMeans, ...metadata } = record;
+  return metadata;
+}
+async function buildAcquisitionZip(acquisitions, displaySettings = {}, onProgress = () => {}) {
+  if (!acquisitions.length) throw new Error('No acquisitions to export.');
+  const zip = new JSZip();
+  const manifest = {
+    format: 'ModalTesting', version: 4, exportedAt: new Date().toISOString(),
+    displaySettings, acquisitions: []
+  };
+  zip.file('README.txt', [
+    'ModalTesting — acquisition export',
+    'One folder per FRF group. DAT: no header, tab separator, decimal point; undefined values are NaN.',
+    'signals_01.wav, signals_02.wav, etc.: one stereo IEEE float32 WAV per completed impact.',
+    'Channel 1 left (input), channel 2 right (output). Original samples and sample rate, pretrigger included.',
+    'No normalization or resampling. No spectra are exported.',
+    'FRF_RealImag.dat: frequency (Hz), real(H2), imaginary(H2), in linear units (not dB).',
+    'H2 = mean(Syy) / mean(Sxy), with Sxy = X * conjugate(Y). Spectral products are averaged before division.',
+    'Coherence.dat: frequency (Hz), magnitude-squared coherence, from 0 to 1.',
+    'With one measurement, coherence is 1 wherever defined.',
+    'No extra window, detrending or zero padding. Equal weights for all completed impacts in a group.',
+    'metadata.json: group settings and per-impact metadata, in the same order as the numbered WAV files.',
+    'A partial group saved on Stop contains only completed impacts. An interrupted impact is discarded.',
+    'Time at sample i: i / sampleRate + timeOffset. All bins and samples are exported regardless of zoom.',
+    'manifest.json lists groups and display settings.'
+  ].join('\n') + '\n');
+  for (let index = 0; index < acquisitions.length; index++) {
+    const record = acquisitions[index];
+    const folderName = /^FRF \d+$/.test(record.name) ? record.name.replace(' ', '_') : `FRF_${String(index + 1).padStart(3, '0')}`;
+    const folder = zip.folder(folderName);
+    const measurements = record.measurements || [record];
+    folder.file('metadata.json', JSON.stringify({ ...exportMetadata(record), measurements: measurements.map(exportMetadata) }, null, 2));
+    manifest.acquisitions.push({ name: record.name, folder: folderName, samplesPerMeasurement: record.channels[0].length,
+      sampleRate: record.sampleRate, averagesRequested: record.averagesRequested || 1, averagesCompleted: measurements.length,
+      complete: record.complete });
+    for (let m = 0; m < measurements.length; m++) {
+      const measurement = measurements[m];
+      folder.file(`signals_${String(m + 1).padStart(2, '0')}.wav`, stereoFloatWav(measurement.channels, measurement.sampleRate));
+    }
+    const frf = record.frf;
+    folder.file('FRF_RealImag.dat', await exportDat(frf.frequency.length,
+      i => [frf.frequency[i], frf.real[i], frf.imag[i]]));
+    const coherence = record.coherence;
+    folder.file('Coherence.dat', await exportDat(coherence.frequency.length,
+      i => [coherence.frequency[i], coherence.magnitudeSquared[i]]));
+    onProgress(50 * (index + 1) / acquisitions.length);
+  }
+  zip.file('manifest.json', JSON.stringify(manifest, null, 2));
+  return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', compressionOptions: { level: 6 }, streamFiles: true },
+    metadata => onProgress(50 + metadata.percent / 2));
+}
+
+// app_v3.js
+'use strict';
+const ui = Object.fromEntries(['level', 'pretrigger', 'duration', 'averages', 'pointNumber', 'start', 'stop', 'status', 'waveform', 'spectrum', 'frf', 'coherence', 'frequencyMax', 'history', 'export', 'delete', 'triggerState', 'averageIndicators'].map(id => [id, document.getElementById(id)]));
+let frequencyMax = ui.frequencyMax ? 5000 : Infinity;
+let sharedFrequencyRange = null;
+let syncingFrequency = false;
+let session = null;
+let displayedCapture = null;
+let busy = false;
+let drawing = false;
+let pendingDraw = Promise.resolve();
+let plotReady = false;
+const spectrumCache = new WeakMap();
+// Full-resolution data for subsequent transfer-function calculations.
+window.lastAcquisition = null;
+window.acquisitionHistory = [];
+function status(message = '') { ui.status.textContent = message; }
+function lock(value) {
+  busy = value;
+  for (const key of ['start', 'level', 'pretrigger', 'duration', 'averages', 'pointNumber']) ui[key].disabled = value;
+  ui.stop.disabled = !session || !value;
+  ui.history.disabled = value;
+  ui.export.disabled = value || window.acquisitionHistory.length === 0;
+  ui.delete.disabled = value || ui.history.value === '' || !window.acquisitionHistory[Number(ui.history.value)];
+}
+function layout(range = [0, 2]) {
+  return { margin: { l: 56, r: 12, t: 8, b: 32 }, paper_bgcolor: 'white', plot_bgcolor: 'white',
+    font: { family: 'sans-serif', size: 11, color: '#333' },
+    xaxis: { title: { text: 'Time (s)', font: { size: 11 } }, tickfont: { size: 10 }, range, gridcolor: '#eee', zeroline: false },
+    yaxis: { title: { text: 'Amplitude (FS)', font: { size: 11 } }, tickfont: { size: 10 }, range: [-1.05, 1.05], gridcolor: '#eee', zerolinecolor: '#ccc' }, showlegend: false };
+}
+function frequencyLayout(rate = 48000) {
+  const range = sharedFrequencyRange && sharedFrequencyRange[0] < rate / 2
+    ? [sharedFrequencyRange[0], Math.min(sharedFrequencyRange[1], rate / 2)]
+    : [0, Math.min(frequencyMax, rate / 2)];
+  const figure = layout(range);
+  figure.xaxis.title.text = 'Frequency (Hz)';
+  figure.yaxis = { title: { text: 'Amplitude (dBFS)', font: { size: 11 } }, tickfont: { size: 10 }, autorange: true, gridcolor: '#eee', zerolinecolor: '#ccc' };
+  return figure;
+}
+function spectrumLayout(rate = 48000) {
+  const figure = frequencyLayout(rate);
+  figure.margin.t = 22;
+  figure.xaxis = { ...figure.xaxis, domain: [0, .43], anchor: 'y' };
+  figure.yaxis = { ...figure.yaxis, anchor: 'x' };
+  figure.xaxis2 = { ...figure.xaxis, domain: [.57, 1], anchor: 'y2', matches: 'x' };
+  figure.yaxis2 = { ...figure.yaxis, anchor: 'x2' };
+  figure.annotations = [
+    { text: 'Channel 1', x: .215 }, { text: 'Channel 2', x: .785 }
+  ].map(label => ({ ...label, xref: 'paper', yref: 'paper', y: 1, yshift: 4, xanchor: 'center', yanchor: 'bottom', showarrow: false }));
+  return figure;
+}
+function frfLayout(rate = 48000) {
+  const figure = frequencyLayout(rate);
+  figure.yaxis.title.text = 'H2 magnitude (dB)';
+  return figure;
+}
+async function drawFrf(acquisition = window.lastAcquisition) {
+  if (!plotReady) return;
+  const data = acquisition
+    ? (acquisition.frf ||= h2Frf(acquisition.channels[0], acquisition.channels[1], acquisition.sampleRate))
+    : { frequency: [], magnitudeDb: [] };
+  await Plotly.react(ui.frf, [{ x: data.frequency, y: data.magnitudeDb, type: 'scatter', mode: 'lines',
+    connectgaps: false, line: { color: '#000', width: 1.3, simplify: false },
+    hovertemplate: '%{x:.3f} Hz<br>%{y:.2f} dB<extra></extra>' }],
+  frfLayout(acquisition?.sampleRate), { responsive: true, displaylogo: false, locale: 'en', doubleClick: false });
+}
+function coherenceLayout(rate = 48000) {
+  const figure = frequencyLayout(rate);
+  figure.yaxis = { ...figure.yaxis, title: { text: 'Coherence', font: { size: 11 } },
+    range: [0, 1], autorange: false, fixedrange: true };
+  return figure;
+}
+async function drawCoherence(acquisition = window.lastAcquisition) {
+  if (!plotReady) return;
+  const data = acquisition?.coherence || { frequency: [], magnitudeSquared: [] };
+  await Plotly.react(ui.coherence, [{ x: data.frequency, y: data.magnitudeSquared, type: 'scatter', mode: 'lines',
+    connectgaps: false, line: { color: '#000', width: 1.3, simplify: false },
+    hovertemplate: '%{x:.3f} Hz<br>%{y:.3f}<extra></extra>' }],
+  coherenceLayout(acquisition?.sampleRate), { responsive: true, displaylogo: false, locale: 'en', doubleClick: false });
+}
+const channelColors = ['#d32f2f', '#1565c0'];
+function spectrumTraces(spectra = []) {
+  return [0, 1].map(channel => {
+    const data = spectra[channel] || { frequency: [], amplitude: [] };
+    const decibels = data.amplitude.map(value => 20 * Math.log10(Math.max(value, 1e-12)));
+    return { x: data.frequency, y: decibels, type: 'scatter', mode: 'lines',
+      xaxis: channel ? 'x2' : 'x', yaxis: channel ? 'y2' : 'y',
+      line: { color: channelColors[channel], width: 1.3, simplify: false },
+      hovertemplate: '%{x:.3f} Hz<br>%{y:.2f} dBFS<extra></extra>' };
+  });
+}
+async function drawSpectrum(acquisition = window.lastAcquisition) {
+  if (!plotReady) return;
+  let spectra = [];
+  if (acquisition) {
+    spectra = acquisition.spectra || spectrumCache.get(acquisition);
+    if (!spectra) {
+      spectra = acquisition.channels.map(samples => amplitudeSpectrum(samples, acquisition.sampleRate));
+      spectrumCache.set(acquisition, spectra);
+    }
+  }
+  await Plotly.react(ui.spectrum, spectrumTraces(spectra), spectrumLayout(acquisition?.sampleRate),
+    { responsive: true, displaylogo: false, locale: 'en', doubleClick: false });
+}
+// Keep both extrema in each display bucket so a short impact stays visible.
+function envelope(samples, begin, end, rate, offset = 0) {
+  const x = [], y = [], stride = Math.max(1, Math.ceil((end - begin) / 1000));
+  for (let i = begin; i < end; i += stride) {
+    let low = i, high = i;
+    for (let j = i + 1; j < Math.min(i + stride, end); j++) {
+      if (samples[j] < samples[low]) low = j;
+      if (samples[j] > samples[high]) high = j;
+    }
+    for (const j of low === high ? [low] : [Math.min(low, high), Math.max(low, high)]) { x.push(j / rate + offset); y.push(samples[j]); }
+  }
+  return { x, y, type: 'scatter', mode: 'lines', line: { color: '#000', width: 1.3 }, hovertemplate: '%{x:.4f} s<br>%{y:.5f} FS<extra></extra>' };
+}
+// Preserve every recorded sample, including flat sections, when zooming after capture.
+function fullTrace(samples, count, rate, offset) {
+  const x = new Float64Array(count);
+  for (let i = 0; i < count; i++) x[i] = i / rate + offset;
+  return { x, y: samples.subarray(0, count), type: 'scatter', mode: 'lines',
+    line: { color: '#000', width: 1.3, simplify: false },
+    hovertemplate: '%{x:.7f} s<br>%{y:.7f} FS<extra></extra>' };
+}
+function timeLayout(range = [0, 2], title = 'Time (s)') {
+  const figure = layout(range);
+  figure.margin.t = 22;
+  figure.xaxis = { ...figure.xaxis, title: { text: title, font: { size: 11 } }, domain: [0, .43], anchor: 'y' };
+  figure.yaxis = { ...figure.yaxis, anchor: 'x' };
+  figure.xaxis2 = { ...figure.xaxis, domain: [.57, 1], anchor: 'y2', matches: 'x' };
+  figure.yaxis2 = { ...figure.yaxis, anchor: 'x2' };
+  figure.annotations = [
+    { text: 'Channel 1', x: .215 }, { text: 'Channel 2', x: .785 }
+  ].map(label => ({ ...label, xref: 'paper', yref: 'paper', y: 1, yshift: 4, xanchor: 'center', yanchor: 'bottom', showarrow: false }));
+  return figure;
+}
+function emptyTimeTraces() {
+  return [0, 1].map(channel => ({ ...envelope([], 0, 0, 1),
+    line: { color: channelColors[channel], width: 1.3 },
+    xaxis: channel ? 'x2' : 'x', yaxis: channel ? 'y2' : 'y' }));
+}
+async function draw(s, complete = false) {
+  if (!plotReady || (drawing && !complete)) return;
+  if (complete) await pendingDraw;
+  drawing = true;
+  const capture = s.capture;
+  displayedCapture = { capture, rate: s.rate };
+  const count = capture.triggered ? capture.count : Math.min(capture.historyCount, Math.round(s.rate * 2));
+  const offset = capture.triggered ? 0 : -count / s.rate;
+  const range = capture.triggered ? [0, capture.target / s.rate] : [-2, 0];
+  const figure = timeLayout(range, capture.triggered ? 'Time (s)' : 'Time relative to now (s)');
+  figure.shapes = [-capture.level, capture.level].map(level => ({ type: 'line', xref: 'x domain', yref: 'y', x0: 0, x1: 1, y0: level, y1: level, line: { color: '#d39b3b', width: 1, dash: 'dot' } }));
+  try {
+    const traces = [0, 1].map(channel => {
+      const samples = capture.triggered ? capture.channels[channel] : capture.historyTail(channel, count);
+      const trace = complete ? fullTrace(samples, count, s.rate, offset) : envelope(samples, 0, count, s.rate, offset);
+      return { ...trace, line: { ...trace.line, color: channelColors[channel] }, xaxis: channel ? 'x2' : 'x', yaxis: channel ? 'y2' : 'y' };
+    });
+    pendingDraw = Promise.resolve(Plotly.react(ui.waveform, traces, figure, { responsive: true, displaylogo: false, locale: 'en' }));
+    await pendingDraw;
+  } finally { drawing = false; }
+}
+
+function explain(error) {
+  return ({ NotAllowedError: 'Audio access denied. Allow microphone access in your browser.', NotFoundError: 'No audio input available.', NotReadableError: 'Unable to open the audio device. Check its connection and other applications using it.', OverconstrainedError: 'This input does not support the requested stereo capture.' })[error.name] || error.message;
+}
+function supported() {
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) throw new Error('Open this page via http://localhost or HTTPS to access the audio device.');
+  if (!window.AudioContext?.prototype.createScriptProcessor) throw new Error('This browser does not support capture with ScriptProcessorNode.');
+}
+let indicatorSignature = '';
+function drawAverageIndicators(count, measurements = []) {
+  if (!Number.isSafeInteger(count) || count < 1) return;
+  const states = Array.from({ length: count }, (_, i) => !measurements[i] ? 'pending' : measurements[i].clipped ? 'clipped' : 'clean');
+  const signature = states.join(',');
+  if (signature === indicatorSignature) return;
+  indicatorSignature = signature;
+  ui.averageIndicators.replaceChildren();
+  const labels = { pending: 'Pending', clean: 'Completed — no clipping', clipped: 'Completed — clipping detected' };
+  states.forEach((state, i) => {
+    const dot = document.createElement('span');
+    dot.className = `average-dot ${state}`;
+    dot.title = `Measurement ${i + 1}: ${labels[state]}`;
+    ui.averageIndicators.append(dot);
+  });
+  ui.averageIndicators.setAttribute('aria-label', states.map((state, i) => `Measurement ${i + 1}: ${labels[state]}`).join('; '));
+}
+ui.averages.addEventListener('input', () => { if (!session) drawAverageIndicators(Number(ui.averages.value)); });
+drawAverageIndicators(Number(ui.averages.value));
+function measurementState(s, message) {
+  drawAverageIndicators(s.averages || 1, s.averageGroup?.measurements || []);
+  const number = (s.averageGroup?.count || 0) + 1;
+  ui.triggerState.textContent = `Measurement ${number}/${s.averages || 1} — ${message}`;
+}
+
+function announcePoint(s) {
+  if (s.closed || s.stopRequested || s.announcedPoint === s.pointNumber) return;
+  s.announcedPoint = s.pointNumber;
+  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return;
+  try {
+    window.speechSynthesis.cancel();
+    const speech = new window.SpeechSynthesisUtterance(String(s.pointNumber));
+    speech.lang = 'en-US';
+    speech.rate = 1;
+    speech.volume = .8;
+    s.pointAnnouncement = speech;
+    const clear = () => { if (s.pointAnnouncement === speech) s.pointAnnouncement = null; };
+    speech.onend = clear;
+    const announcedCapture = s.capture;
+    speech.onerror = () => {
+      clear();
+      if (announcedCapture) announcedCapture.suppressReadyBeep = false;
+    };
+    window.speechSynthesis.speak(speech);
+    if (announcedCapture) announcedCapture.suppressReadyBeep = true;
+  } catch {
+    // Voice availability must never prevent acquisition.
+    s.pointAnnouncement = null;
+  }
+}
+function stopPointAnnouncement(s) {
+  if (!s?.pointAnnouncement) return;
+  s.pointAnnouncement = null;
+  try { window.speechSynthesis?.cancel(); } catch { /* Acquisition can still stop. */ }
+}
+
+function beepWhenReady(s) {
+  const capture = s.capture;
+  if (s.closed || s.stopRequested || s.finishing || capture.triggered ||
+      capture.readyBeepPlayed || capture.historyCount < capture.preFrames) return;
+  capture.readyBeepPlayed = true;
+  if (capture.suppressReadyBeep || s.pointAnnouncement) return;
+  // Separate output branch: the recorded input samples are never mixed with the tone.
+  const oscillator = s.context.createOscillator();
+  const gain = s.context.createGain();
+  const now = s.context.currentTime;
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(880, now);
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(.08, now + .005);
+  gain.gain.setValueAtTime(.08, now + .06);
+  gain.gain.linearRampToValueAtTime(0, now + .08);
+  oscillator.connect(gain);
+  gain.connect(s.context.destination);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+  oscillator.start(now);
+  oscillator.stop(now + .085);
+}
+
+function captureBuffer(s, event) {
+  // Keep the output silent while the node stays connected to the audio graph.
+  for (let i = 0; i < event.outputBuffer.numberOfChannels; i++) event.outputBuffer.getChannelData(i).fill(0);
+  if (s.closed) return;
+  s.lastBufferAt = Date.now();
+  if (s.finishing || s.stopRequested) return;
+  const input = event.inputBuffer;
+  if (input.numberOfChannels !== 2) {
+    void finish(s, 'The default audio input does not provide two channels.');
+    return;
+  }
+  s.lastBufferAt = Date.now();
+  const capture = s.capture;
+  beepWhenReady(s);
+  capture.append(input.getChannelData(0), input.getChannelData(1));
+  beepWhenReady(s);
+  if (capture.triggered) {
+    measurementState(s, 'Recording…');
+    if (capture.done) void finish(s, '', true);
+  } else {
+    measurementState(s, 'Waiting for trigger…');
+  }
+}
+
+function finish(s, error = '', repeat = false) {
+  if (error) { s.stopRequested = true; s.stopError = error; }
+  if (s.closed) return Promise.resolve();
+  if (s.finishing) return s.completion;
+  s.finishing = true;
+  s.completion = finishCapture(s, repeat);
+  return s.completion;
+}
+
+async function closeSeries(s) {
+  s.closed = true;
+  stopPointAnnouncement(s);
+  clearInterval(s.timer);
+  s.stream.getTracks().forEach(track => track.stop());
+  s.source?.disconnect();
+  if (s.node) s.node.onaudioprocess = null;
+  s.node?.disconnect();
+  await s.context.close().catch(() => {});
+  session = null;
+  lock(false);
+  ui.triggerState.textContent = '';
+}
+
+function storedCapture(acquisition) {
+  return {
+    triggered: true, channels: acquisition.channels, count: acquisition.channels[0].length,
+    target: acquisition.channels[0].length, preFrames: acquisition.triggerIndex, level: acquisition.triggerLevel
+  };
+}
+
+async function finishCapture(s, repeat) {
+  const capture = s.capture;
+  try {
+    if (capture.done && !s.stopError) {
+      measurementState(s, 'Processing…');
+      const acquisition = {
+        pointNumber: s.pointNumber, sampleRate: s.rate, channels: capture.channels.map(c => c.slice(0, capture.count)),
+        duration: capture.count / s.rate, device: s.label, settings: s.settings,
+        triggerLevel: capture.level, triggerIndex: capture.preFrames,
+        pretrigger: capture.preFrames / s.rate, posttrigger: (capture.count - capture.preFrames) / s.rate,
+        timeOffset: 0, triggerTime: capture.preFrames / s.rate, complete: true
+      };
+      acquisition.clipped = capture.clipped;
+      acquisition.measuredAt = new Date().toISOString();
+      s.averageGroup ||= new FRFAverage(s.averages || 1);
+      s.averageGroup.add(acquisition);
+      const averaged = s.averageGroup.snapshot();
+      drawAverageIndicators(s.averages || 1, averaged.measurements);
+      window.lastAcquisition = averaged;
+      if (averaged.complete) {
+        archiveAcquisition(averaged, s);
+        s.averageGroup = null;
+      }
+    }
+    // Stop during a partial capture restores the latest completed record.
+    const acquisition = window.lastAcquisition;
+    if (acquisition) {
+      await draw({ capture: storedCapture(acquisition), rate: acquisition.sampleRate }, true);
+      await drawSpectrum(acquisition);
+      await drawFrf(acquisition);
+      await drawCoherence(acquisition);
+    } else {
+      await draw(s, true);
+    }
+  } catch (error) {
+    s.stopError = s.stopError || error.message;
+    s.stopRequested = true;
+  } finally {
+    if (repeat && !s.stopRequested && !s.stopError) {
+      s.capture = new TriggerCapture(s.rate, capture.level, capture.preFrames / s.rate, capture.target / s.rate);
+      s.lastBufferAt = Date.now();
+      s.finishing = false;
+      measurementState(s, 'Waiting for trigger…');
+      announcePoint(s);
+      beepWhenReady(s);
+    } else {
+      try {
+        // Preserve completed impacts if Stop occurs before the requested group size.
+        if (s.averageGroup?.count) {
+          const partial = s.averageGroup.snapshot();
+          archiveAcquisition(partial, s);
+          window.lastAcquisition = partial;
+          s.averageGroup = null;
+        }
+      } catch (error) { s.stopError ||= error.message; }
+      finally { await closeSeries(s); }
+    }
+    status(s.stopError || '');
+  }
+}
+
+function acquisitionLabel(acquisition) {
+  if (!(acquisition.averagesRequested > 1)) return acquisition.name;
+  return `${acquisition.name} (${acquisition.averagesCompleted}/${acquisition.averagesRequested} averages)`;
+}
+
+function pointOf(acquisition) {
+  return acquisition.pointNumber ?? Number(acquisition.name.replace(/^FRF /, ''));
+}
+function nextAvailablePoint() {
+  const used = new Set(window.acquisitionHistory.map(pointOf));
+  let number = 1;
+  while (used.has(number)) number++;
+  return number;
+}
+function archiveAcquisition(acquisition, series) {
+  const pointNumber = series?.pointNumber ?? Number(ui.pointNumber.value);
+  if (!Number.isSafeInteger(pointNumber) || pointNumber < 1) throw new Error('Point number must be a positive integer.');
+  const existing = window.acquisitionHistory.findIndex(record => pointOf(record) === pointNumber);
+  if (existing !== -1 && series?.replacePoint !== pointNumber) throw new Error('Replacing an existing point requires confirmation.');
+  acquisition.spectra ||= acquisition.channels.map(samples => amplitudeSpectrum(samples, acquisition.sampleRate));
+  acquisition.frf ||= h2Frf(acquisition.channels[0], acquisition.channels[1], acquisition.sampleRate);
+  acquisition.pointNumber = pointNumber;
+  acquisition.name = `FRF ${String(pointNumber).padStart(3, '0')}`;
+  acquisition.savedAt = new Date().toISOString();
+  if (existing !== -1) {
+    spectrumCache.delete(window.acquisitionHistory[existing]);
+    window.acquisitionHistory[existing] = acquisition;
+  } else window.acquisitionHistory.push(acquisition);
+  window.acquisitionHistory.sort((a, b) => pointOf(a) - pointOf(b));
+  ui.history.replaceChildren();
+  window.acquisitionHistory.forEach((record, index) => {
+    const option = document.createElement('option');
+    option.value = String(index);
+    option.textContent = acquisitionLabel(record);
+    ui.history.append(option);
+  });
+  ui.history.value = String(window.acquisitionHistory.indexOf(acquisition));
+  const next = nextAvailablePoint();
+  ui.pointNumber.value = String(next);
+  if (series) { series.pointNumber = next; series.replacePoint = null; }
+}
+
+async function restoreAcquisition(index) {
+  if (busy || session) return;
+  const acquisition = window.acquisitionHistory[index];
+  if (!acquisition) return;
+  lock(true);
+  status();
+  try {
+    window.lastAcquisition = acquisition;
+    drawAverageIndicators(acquisition.averagesRequested || 1, acquisition.measurements || [acquisition]);
+    ui.history.value = String(index);
+    const capture = storedCapture(acquisition);
+    await draw({ capture, rate: acquisition.sampleRate }, true);
+    await drawSpectrum(acquisition);
+    await drawFrf(acquisition);
+    await drawCoherence(acquisition);
+  } catch (error) {
+    status(error.message);
+  } finally {
+    lock(false);
+  }
+}
+ui.history.addEventListener('change', () => {
+  if (ui.history.value !== '') return restoreAcquisition(Number(ui.history.value));
+  lock(busy);
+});
+
+ui.delete.addEventListener('click', async () => {
+  if (busy || session || ui.history.value === '') return;
+  const index = Number(ui.history.value);
+  if (!Number.isInteger(index) || !window.acquisitionHistory[index]) return;
+  const [removed] = window.acquisitionHistory.splice(index, 1);
+  spectrumCache.delete(removed);
+  window.lastAcquisition = null;
+  displayedCapture = null;
+  ui.history.replaceChildren();
+  window.acquisitionHistory.forEach((acquisition, i) => {
+    const option = document.createElement('option');
+    option.value = String(i);
+    option.textContent = acquisitionLabel(acquisition);
+    ui.history.append(option);
+  });
+  if (window.acquisitionHistory.length) {
+    return restoreAcquisition(Math.min(index, window.acquisitionHistory.length - 1));
+  }
+  ui.history.selectedIndex = -1;
+  lock(true);
+  status();
+  try {
+    await pendingDraw;
+    await Plotly.react(ui.waveform, emptyTimeTraces(), timeLayout(), { responsive: true, displaylogo: false, locale: 'en' });
+    await drawSpectrum(null);
+    await drawFrf(null);
+    await drawCoherence(null);
+    drawAverageIndicators(Number(ui.averages.value));
+  } catch (error) { status(error.message); }
+  finally { lock(false); }
+});
+
+ui.export.addEventListener('click', async () => {
+  if (busy || session || !window.acquisitionHistory.length) return;
+  lock(true);
+  status();
+  let url, link;
+  try {
+    ui.export.textContent = 'Export…';
+    const data = await buildAcquisitionZip(window.acquisitionHistory.slice(), {
+      frequencyMaxHz: Number.isFinite(frequencyMax) ? frequencyMax : null,
+      displayedChannels: [1, 2],
+      selectedAcquisition: ui.history.value
+    }, percent => { ui.export.textContent = `Export ${Math.floor(percent)} %`; });
+    url = URL.createObjectURL(new Blob([data], { type: 'application/zip' }));
+    link = document.createElement('a');
+    link.href = url;
+    link.download = `ModalTesting_${new Date().toISOString().replace(/[:.]/g, '-')}.zip`;
+    document.body.append(link);
+    link.click();
+  } catch (error) {
+    status(`Export failed: ${error.message}`);
+  } finally {
+    link?.remove();
+    // Allow the browser to start reading the download before releasing its URL.
+    if (url) setTimeout(() => URL.revokeObjectURL(url), 1000);
+    ui.export.textContent = 'Export';
+    lock(false);
+  }
+});
+
+ui.start.addEventListener('click', async () => {
+  if (busy) return;
+  if (!['level', 'pretrigger', 'duration', 'averages', 'pointNumber'].every(key => ui[key].reportValidity())) return;
+  const averages = Number(ui.averages.value);
+  if (!Number.isSafeInteger(averages) || averages < 1) { status('Averages must be a positive integer.'); return; }
+  const duration = Number(ui.duration.value);
+  const level = Number(ui.level.value), pretrigger = Number(ui.pretrigger.value);
+  if (!Number.isFinite(duration) || duration < .1 || duration > 120) return;
+  if (pretrigger >= duration) {
+    status('Pretrigger must be shorter than the total duration.');
+    return;
+  }
+  const pointNumber = Number(ui.pointNumber.value);
+  if (!Number.isSafeInteger(pointNumber) || pointNumber < 1) { status('Point number must be a positive integer.'); return; }
+  const exists = window.acquisitionHistory.some(record => pointOf(record) === pointNumber);
+  if (exists && !window.confirm(`Point ${pointNumber} already exists. Are you sure you want to replace its measurement?`)) return;
+  lock(true);
+  status();
+  let stream, context;
+  try {
+    supported();
+    if (!plotReady) throw new Error('Plotly is not loaded. Check your Internet connection and reload the page.');
+    context = new AudioContext({ latencyHint: 'interactive' });
+    await context.resume();
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { channelCount: { exact: 2 }, echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false });
+    const track = stream.getAudioTracks()[0];
+    const settings = track.getSettings();
+    if (settings.channelCount && settings.channelCount !== 2) throw new Error('The audio device does not provide stereo input.');
+    const rate = context.sampleRate;
+    const s = { stream, context, rate, settings, averages, pointNumber, replacePoint: exists ? pointNumber : null, label: track.label, capture: new TriggerCapture(rate, level, pretrigger, duration) };
+    session = s;
+    announcePoint(s);
+    window.lastAcquisition = null;
+    ui.history.selectedIndex = -1;
+    await drawSpectrum(null);
+    await drawFrf(null);
+    await drawCoherence(null);
+    s.source = context.createMediaStreamSource(stream);
+    // 4096 frames give the main thread some headroom for Plotly rendering.
+    s.node = context.createScriptProcessor(4096, 2, 1);
+    s.node.channelInterpretation = 'discrete';
+    s.node.onaudioprocess = event => captureBuffer(s, event);
+    track.addEventListener('ended', () => { if (!s.closed) void finish(s, 'The audio device was disconnected. Acquisition interrupted.'); });
+    await draw(s);
+    s.source.connect(s.node); s.node.connect(context.destination);
+    s.lastBufferAt = Date.now();
+    s.timer = setInterval(() => {
+      if (s.finishing || s.closed) return;
+      if (Date.now() - s.lastBufferAt > 10000) void finish(s, 'Audio stream interrupted or suspended. Try again with the page active.');
+      else void draw(s);
+    }, 100);
+    ui.stop.disabled = false;
+    measurementState(s, 'Waiting for trigger…');
+    beepWhenReady(s);
+  } catch (error) {
+    if (session) await finish(session, explain(error));
+    else { stream?.getTracks().forEach(track => track.stop()); await context?.close().catch(() => {}); lock(false); status(explain(error)); }
+  }
+});
+async function applyFrequencyRange(range, resetId = null) {
+  if (!range || range.length !== 2 || !range.every(Number.isFinite) || range[0] >= range[1]) return;
+  sharedFrequencyRange = range.slice();
+  syncingFrequency = true;
+  try {
+    await Promise.all(['spectrum', 'frf', 'coherence'].map(id => {
+      const update = { 'xaxis.range': range.slice(), 'xaxis.autorange': false };
+      if (id === 'spectrum') Object.assign(update, { 'xaxis2.range': range.slice(), 'xaxis2.autorange': false });
+      if (id === resetId) {
+        if (id === 'coherence') Object.assign(update, { 'yaxis.range': [0, 1], 'yaxis.autorange': false });
+        else update['yaxis.autorange'] = true;
+        if (id === 'spectrum') update['yaxis2.autorange'] = true;
+      }
+      return Plotly.relayout(ui[id], update);
+    }));
+  } catch (error) { status(error.message); }
+  finally { syncingFrequency = false; }
+}
+function syncFrequencyView(id, event) {
+  if (syncingFrequency) return;
+  for (const axis of ['xaxis', 'xaxis2']) {
+    if (!(axis + '.range' in event) && !(axis + '.range[0]' in event) &&
+        !(axis + '.range[1]' in event) && !(axis + '.autorange' in event)) continue;
+    const current = ui[id].layout?.[axis]?.range;
+    const range = event[axis + '.range'] || [
+      event[axis + '.range[0]'] ?? current?.[0],
+      event[axis + '.range[1]'] ?? current?.[1]
+    ];
+    return applyFrequencyRange(range);
+  }
+}
+async function resetFrequencyView(id) {
+  const rate = window.lastAcquisition?.sampleRate || session?.rate || 48000;
+  return applyFrequencyRange([0, Math.min(frequencyMax, rate / 2)], id);
+}
+ui.frequencyMax?.addEventListener('input', async () => {
+  const value = Number(ui.frequencyMax.value);
+  if (!Number.isFinite(value) || value < .1) return;
+  frequencyMax = value;
+  if (!plotReady) return;
+  const rate = window.lastAcquisition?.sampleRate || session?.rate || 48000;
+  await applyFrequencyRange([0, Math.min(frequencyMax, rate / 2)]);
+});
+ui.stop.addEventListener('click', () => {
+  if (!session || session.closed) return;
+  session.stopRequested = true;
+  stopPointAnnouncement(session);
+  ui.stop.disabled = true;
+  ui.triggerState.textContent = 'Stopping series…';
+  return finish(session);
+});
+window.addEventListener('pagehide', () => { stopPointAnnouncement(session); session?.stream.getTracks().forEach(track => track.stop()); void session?.context.close(); });
+if (window.Plotly) {
+  Promise.all([
+    Plotly.newPlot(ui.waveform, emptyTimeTraces(), timeLayout(), { responsive: true, displaylogo: false, locale: 'en' }),
+    Plotly.newPlot(ui.spectrum, spectrumTraces(), spectrumLayout(), { responsive: true, displaylogo: false, locale: 'en', doubleClick: false }),
+    Plotly.newPlot(ui.frf, [], frfLayout(), { responsive: true, displaylogo: false, locale: 'en', doubleClick: false }),
+    Plotly.newPlot(ui.coherence, [], coherenceLayout(), { responsive: true, displaylogo: false, locale: 'en', doubleClick: false })
+   ]).then(() => {
+    plotReady = true;
+    for (const id of ['spectrum', 'frf', 'coherence']) {
+      ui[id].on('plotly_doubleclick', () => resetFrequencyView(id));
+      ui[id].on('plotly_relayout', event => syncFrequencyView(id, event));
+    }
+  }).catch(error => status(error.message));
+} else status('Plotly could not be loaded. Check your Internet connection and reload the page.');
+  </script>
+</body>
+</html>
