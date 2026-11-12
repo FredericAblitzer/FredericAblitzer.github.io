@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this application for research or academic work, please cite the article below."
 type: software
 title: "PeakPickingTools"
-version: "0.51"
+version: "0.54"
 authors:
   - family-names: "Ablitzer"
     given-names: "Frédéric"

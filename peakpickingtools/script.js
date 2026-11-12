@@ -84,6 +84,7 @@
     let playSelectedModeActive = false;
     let spectrumClickBound = false;                           
     let timeClickBound = false;
+    let componentsHoverBound = false;
     let clickCursorTime = null;
     let currentRefineHighlightOmega = null;
     const REFINE_WORKING_EMOJI = '⏳';
@@ -238,12 +239,14 @@
 
       const freqs = [];
       const damping = [];
+      const modeIndices = [];
       for (let i = 0; i < omega_n.length; i++) {
         const f = radPerSecToHz(omega_n[i]);
         const z = xi_n[i] * 100;
         if (!isFinite(f) || !isFinite(z)) continue;
         freqs.push(f);
         damping.push(z);
+        modeIndices.push(i);
       }
 
       const layout = {
@@ -285,13 +288,27 @@
         {
           x: freqs,
           y: damping,
+          customdata: modeIndices,
           mode: 'markers',
           marker: { size: 8, color: '#1f77b4' },
           hovertemplate: 'f: %{x:.2f} Hz<br>xi: %{y:.4f} %<extra></extra>'
         }
       ];
 
-      Plotly.react('componentsPlot', traces, layout, { responsive: true, displayModeBar: false });
+      Plotly.react('componentsPlot', traces, layout, { responsive: true, displayModeBar: false }).then(() => {
+        if (componentsHoverBound) return;
+        plotEl.on('plotly_hover', (event) => {
+          const point = event.points && event.points[0];
+          if (point && Number.isInteger(point.customdata)) {
+            setRefineHighlight(point.customdata);
+          }
+        });
+        plotEl.on('plotly_unhover', () => {
+          // Restore the list selection without redrawing the graph being hovered.
+          setRefineHighlight(document.getElementById('peakList').selectedIndex);
+        });
+        componentsHoverBound = true;
+      });
     }
 
     function setComponentsViewMode(showGraph) {
@@ -300,6 +317,9 @@
       if (!peakListEl || !plotEl) return;
       peakListEl.classList.toggle('hidden', showGraph);
       plotEl.classList.toggle('hidden', !showGraph);
+      if (!showGraph) {
+        setRefineHighlight(peakListEl.selectedIndex);
+      }
       if (showGraph) {
         plotComponentsGraph();
         if (window.Plotly && Plotly.Plots && typeof Plotly.Plots.resize === 'function') {
@@ -1150,7 +1170,7 @@
         audioCtx.decodeAudioData(
           arrayBuffer,
           function (audioBuffer) {
-            loadAudioBuffer(audioBuffer);
+            loadAudioBuffer(audioBuffer, { channelIndex: resolveRecordChannelIndex(audioBuffer) });
           },
           function (err) {
             console.error('Erreur decodeAudioData', err);
@@ -2899,7 +2919,7 @@
       sortModesByFrequency();
 
       let windowData = null;
-      if (wavTimeAxis && wavData && wavTimeAxis.length > 0 && wavData.length > 0) {
+      if (omega_n.length > 0 && wavTimeAxis && wavData && wavTimeAxis.length > 0 && wavData.length > 0) {
         windowData = extractWavWindowData();
       }
       if (windowData) {
@@ -2907,6 +2927,7 @@
       }
 
       redrawAll();
+      peakList.selectedIndex = omega_n.length > 0 ? Math.max(0, selectedIndex - 1) : -1;
       highlightSelectedMode();
     });
 
